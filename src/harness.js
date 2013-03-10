@@ -27,49 +27,82 @@ JFSG.toSaveGame = true;
 
 window.onload = function(){
 	// JFSG.startSession();
-	// requestNextAnimationFrame(JFSG.animate);
+	requestNextAnimationFrame(JFSG.animate);
+	JFSG.initEvents();
+
+};
+
+JFSG.freq = 1;
+JFSG.amp = 1;
+JFSG.initd3test = true;
+JFSG.d3test = function(time){
 
 	//Test d3 stuff
-	var data = [{year: 2006, books: 54},
-	            {year: 2007, books: 43},
-	            {year: 2008, books: 41},
-	            {year: 2009, books: 44},
-	            {year: 2010, books: 35}];
+  	var data = [];
+  	var length = 1024;
+  	var i;
 
-	var barWidth = 40;
-	var width = (barWidth + 10) * data.length;
-	var height = 200;
+  	for(i = 0; i < length; i++){
+  		data[i] = JFSG.amp*Math.sin(JFSG.freq*i/length*2*Math.PI+time/500);
+  	}
 
-	var x = d3.scale.linear().domain([0, data.length]).range([0, width]);
-	var y = d3.scale.linear().domain([0, d3.max(data, function(datum) { return datum.books; })]).
-	  rangeRound([0, height]);
+	var paddingV = 10;
+	var width = 800;
+	var height = 400;
+
+	JFSG.renderBox = [0,0,width,height];
+
+	var x = d3.scale.linear().domain([0, data.length - 1]).range([0, width]);
+    var y = d3.scale.linear().domain([-1, 1]).range([height-paddingV, 0+paddingV]);
 
 	// add the canvas to the DOM
-	var barDemo = d3.select("#bar-demo").
-	  append("svg:svg").
-	  attr("width", width).
-	  attr("height", height);
+	var line = d3.svg.line().x(function(d, i) { return x(i); }).y(y)
 
-	barDemo.selectAll("rect").
-	  data(data).
-	  enter().
-	  append("svg:rect").
-	  attr("x", function(datum, index) { return x(index); }).
-	  attr("y", function(datum) { return height - y(datum.books); }).
-	  attr("height", function(datum) { return y(datum.books); }).
-	  attr("width", barWidth).
-	  attr("fill", "#2d578b");
-	barDemo.selectAll("text").
-	  data(data).
-	  enter().
-	  append("svg:text").
-	  attr("x", function(datum, index) { return x(index) + barWidth; }).
-	  attr("y", function(datum) { return height - y(datum.books); }).
-	  attr("dx", -barWidth/2).
-	  attr("dy", "1.2em").
-	  attr("text-anchor", "middle").
-	  text(function(datum) { return datum.books;}).
-	  attr("fill", "white");
+	if(JFSG.initd3test){
+		JFSG.initd3test = false;
+
+		var barDemo = d3.select("#canvas").
+		append("svg:svg").
+		attr("width", width).
+		attr("height", height);
+
+		barDemo.selectAll('path.line')
+	    .data([data])
+	    .enter()
+	    .append("svg:path")
+	    .attr("d", line)
+		.attr("stroke", "#2d578b")
+		.attr("stroke-width", "5px")
+		.attr("fill", "none");
+
+		// barDemo.selectAll("text").
+		//   data(data).
+		//   enter().
+		//   append("svg:text").
+		//   attr("x", function(datum, index) { return x(index) + barWidth; }).
+		//   attr("y", function(datum) { return height - y(datum.books); }).
+		//   attr("dx", -barWidth/2).
+		//   attr("dy", "1.2em").
+		//   attr("text-anchor", "middle").
+		//   text(function(datum) { return datum.books;}).
+		//   attr("fill", "white");
+	}else{
+		d3.select("#canvas")
+		.selectAll("path")
+		.data([data]) // set the new data
+		.attr("d", line);
+
+		// var barDemo = d3.select("#canvas");
+		// barDemo.selectAll("rect").
+		//   data(data).
+		//   attr("x", function(datum, index) { return x(index); }).
+		//   attr("y", function(datum) { return height - y(datum.books); }).
+		//   attr("height", function(datum) { return y(datum.books); }).
+		//   attr("width", barWidth).
+		//   attr("fill", "#2d578b");
+	}
+
+
 };
 
 JFSG.animate = function(time){
@@ -80,12 +113,16 @@ JFSG.animate = function(time){
 
 		JFSG.dirtyCanvas = false;
 
+
+		JFSG.d3test(time);
+		JFSG.dirtyCanvas = true;
+
 		if(JFSG.checkWon && !JFSG.wonGame){
 			JFSG.checkWon = false;
 			//check if won game
 		}
 
-		console.log("animate! fps: " + (JFSG.fps+0.5|0));
+		//console.log("animate! fps: " + (JFSG.fps+0.5|0));
 		
 		//Save game
 		if(JFSG.toSaveGame){
@@ -129,7 +166,7 @@ JFSG.saveGameState = function() {
 }
 
 JFSG.startSession = function(){
-	JFSG.canvas = document.getElementById("gameCanvas");
+	JFSG.canvas = document.getElementById("canvas");
 	JFSG.ctx = JFSG.canvas.getContext("2d");
 	
 	var w = JFSG.canvas.width;
@@ -170,16 +207,14 @@ JFSG.arrayColorToString = function(color){
 	return "rgb("+Math.round(color[0])+","+Math.round(color[1])+","+Math.round(color[2])+")";
 };
 
-JFSG.mouseDown = function(){return JFSG.mouse === "down";};
-JFSG.mouseUp = function(){return JFSG.mouse === "up";};
-
-
 JFSG.drawGame = function(){
 
 };
 
 JFSG.mousemove = function(x,y){
-	
+	JFSG.freq = 1/(x+0.1);
+	console.log((1-y)*2);
+	JFSG.amp = Math.min(1,Math.max(-1,(y-0.5)*2));
 };
 
 JFSG.mousedown = function(x,y){
@@ -199,8 +234,7 @@ JFSG.mousedown = function(x,y){
 };
 
 JFSG.mouseup = function(x,y){
-	JFSG.mouse = "up";
-	
+	JFSG.mouse = "up";	
 };
 
 JFSG.winGame = function(){
@@ -208,7 +242,7 @@ JFSG.winGame = function(){
 		JFSG.maxLevel++;
 
 		if(typeof kongregate !== "undefined"){
-			kongregate.stats.submit("Max Level",JFSG.maxLevel-4);
+			kongregate.stats.submit("Max Level",JFSG.maxLevel);
 		}
 
 	}
@@ -220,7 +254,7 @@ JFSG.winGame = function(){
 // *** Events ***
 JFSG.initEvents = function(){
 	$(document).mouseup(function (e) {
-		var offset = $("#gameCanvas").offset();
+		var offset = $("#canvas").offset();
 		var x = e.pageX - offset.left;
 		var y = e.pageY - offset.top;
 
@@ -233,7 +267,7 @@ JFSG.initEvents = function(){
 	});
 
 	$(document).mousedown(function (e) {
-		var offset = $("#gameCanvas").offset();
+		var offset = $("#canvas").offset();
 		var x = e.pageX - offset.left;
 		var y = e.pageY - offset.top;
 
@@ -246,7 +280,7 @@ JFSG.initEvents = function(){
 	});
 
 	$(document).mousemove(function (e) {
-		var offset = $("#gameCanvas").offset();
+		var offset = $("#canvas").offset();
 		var x = e.pageX - offset.left;
 		var y = e.pageY - offset.top;
 
