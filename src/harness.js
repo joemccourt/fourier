@@ -32,6 +32,9 @@ window.onload = function(){
 
 };
 
+JFSG.waves = [{freq:1,amp:1}];
+
+
 JFSG.freq = 1;
 JFSG.amp = 1;
 JFSG.initd3test = true;
@@ -40,10 +43,15 @@ JFSG.d3test = function(time){
 	//Test d3 stuff
   	var data = [];
   	var length = 1024;
-  	var i;
+  	var i,j;
 
   	for(i = 0; i < length; i++){
-  		data[i] = JFSG.amp*Math.sin(JFSG.freq*i/length*2*Math.PI+time/500);
+  		data[i] = 0;
+  		for(j = 0; j < JFSG.waves.length; j++){
+  			var wave = JFSG.waves[j];
+	  		data[i] += wave.amp*Math.sin(wave.freq*(i/length)*2*Math.PI);
+	  		// data[i] += wave.amp*Math.sin(wave.freq*(i/length+time/5000)*2*Math.PI);
+  		}
   	}
 
 	var paddingV = 10;
@@ -212,29 +220,22 @@ JFSG.drawGame = function(){
 };
 
 JFSG.mousemove = function(x,y){
-	JFSG.freq = 1/(x+0.1);
-	console.log((1-y)*2);
-	JFSG.amp = Math.min(1,Math.max(-1,(y-0.5)*2));
+	var wave = JFSG.waves[JFSG.waves.length-1];
+
+	if(JFSG.mouse == "down"){
+		wave.freq = 1/(x+0.1);
+		wave.amp = Math.min(1,Math.max(-1,(y-0.5)*2));
+	}
 };
 
 JFSG.mousedown = function(x,y){
 	JFSG.mouse = "down";
 
-	var w = JFSG.map.w;
-	var h = JFSG.map.h;
-
-	var tiles = JFSG.map.tiles;
-	var tileIndex = (x*w|0)+w*(y*h|0);
-	console.log(tiles[tileIndex].value);
-
-	tiles[tileIndex].value += 50;
-	JFSG.dirtyCanvas = true;
-
-	JFSG.map.shortestPath = JFSG.findShortestPath();
 };
 
 JFSG.mouseup = function(x,y){
 	JFSG.mouse = "up";	
+	JFSG.waves[JFSG.waves.length] = {freq:1,amp:0};	
 };
 
 JFSG.winGame = function(){
@@ -302,22 +303,22 @@ JFSG.initEvents = function(){
 };
 
 // *** Fonts ***
-WebFontConfig = {
-	google: { families: [ 'Libre+Baskerville::latin' ] },
-	active: function() {
-		JFSG.font = "Libre Baskerville";
-		JFSG.dirtyCanvas = true;
-	}
-  };
-  (function() {
-    var wf = document.createElement('script');
-    wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
-      '://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
-    wf.type = 'text/javascript';
-    wf.async = 'true';
-    var s = document.getElementsByTagName('script')[0];
-    s.parentNode.insertBefore(wf, s);
-  })();
+// WebFontConfig = {
+// 	google: { families: [ 'Libre+Baskerville::latin' ] },
+// 	active: function() {
+// 		JFSG.font = "Libre Baskerville";
+// 		JFSG.dirtyCanvas = true;
+// 	}
+//   };
+//   (function() {
+//     var wf = document.createElement('script');
+//     wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
+//       '://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+//     wf.type = 'text/javascript';
+//     wf.async = 'true';
+//     var s = document.getElementsByTagName('script')[0];
+//     s.parentNode.insertBefore(wf, s);
+//   })();
 
 // *** LocalStorage Check ***
 function supports_html5_storage() {
