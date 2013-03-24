@@ -29,30 +29,50 @@ window.onload = function(){
 	// JFSG.startSession();
 	requestNextAnimationFrame(JFSG.animate);
 	JFSG.initEvents();
-
 };
 
-JFSG.waves = [{freq:1,amp:1}];
-
+JFSG.waves = [{freq:1,amp:0.5},{freq:5,amp:0.1},{freq:9,amp:0.3},{freq:3,amp:0.2}];
+JFSG.editWaveIndex = 0;
 
 JFSG.freq = 1;
 JFSG.amp = 1;
 JFSG.initd3test = true;
+JFSG.dataWaves = [];
+JFSG.timeConst = 0;
+JFSG.lastPlayTime = -1;
+JFSG.startPlayTime = -1;
+JFSG.playTimeOffset = 0;
+JFSG.playSpeed = 1/8000;
+JFSG.waveHoverIndex = 0;
+
 JFSG.d3test = function(time){
+
+	if(JFSG.timeConst == 0 || JFSG.startPlayTime < 0){
+		JFSG.startPlayTime = time - JFSG.playTimeOffset;
+	}else{
+		JFSG.startPlayTime = JFSG.playTimeOffset;
+	}
+
+	JFSG.lastPlayTime = time;
 
 	//Test d3 stuff
   	var data = [];
+  	var dataWaves = JFSG.dataWaves;
   	var length = 1024;
   	var i,j;
 
-  	for(i = 0; i < length; i++){
-  		data[i] = 0;
-  		for(j = 0; j < JFSG.waves.length; j++){
-  			var wave = JFSG.waves[j];
-	  		data[i] += wave.amp*Math.sin(wave.freq*(i/length)*2*Math.PI);
-	  		// data[i] += wave.amp*Math.sin(wave.freq*(i/length+time/5000)*2*Math.PI);
-  		}
-  	}
+	for(j = 0; j < JFSG.waves.length+1; j++){
+		dataWaves[j] = [];
+	}
+
+	for(i = 0; i < length; i++){
+		dataWaves[0][i] = 0;
+		for(j = 0; j < JFSG.waves.length; j++){
+			var wave = JFSG.waves[j];
+			dataWaves[j+1][i] = wave.amp*Math.sin(wave.freq*(i/length+(time-JFSG.startPlayTime)*JFSG.playSpeed)*2*Math.PI);
+			dataWaves[0][i] += dataWaves[j+1][i];
+		}
+	}
 
 	var paddingV = 10;
 	var width = 800;
@@ -60,11 +80,16 @@ JFSG.d3test = function(time){
 
 	JFSG.renderBox = [0,0,width,height];
 
-	var x = d3.scale.linear().domain([0, data.length - 1]).range([0, width]);
+	var x = d3.scale.linear().domain([0, length - 1]).range([0, width]);
     var y = d3.scale.linear().domain([-1, 1]).range([height-paddingV, 0+paddingV]);
 
+    var seriesColors = ['rgba(0,0,0,1)','rgba(0,255,0,0.5)','rgba(255,0,0,0.5)','rgba(0,150,0,0.5)','rgba(150,50,0,0.5)'];
+
 	// add the canvas to the DOM
-	var line = d3.svg.line().x(function(d, i) { return x(i); }).y(y)
+	var line = d3.svg.line()
+		.interpolate("basis")
+		.x(function(d, i) { return x(i); })
+		.y(y);
 
 	if(JFSG.initd3test){
 		JFSG.initd3test = false;
@@ -75,39 +100,21 @@ JFSG.d3test = function(time){
 		attr("height", height);
 
 		barDemo.selectAll('path.line')
-	    .data([data])
-	    .enter()
-	    .append("svg:path")
-	    .attr("d", line)
-		.attr("stroke", "#2d578b")
-		.attr("stroke-width", "5px")
+		.data(dataWaves)
+		.enter()
+		.append("path")
+		.attr("class", "line")
+		.attr("d", line)
+		.attr("stroke", function(d, i) { return seriesColors[i]; })
+		.attr("stroke-width",  function(d, i) { if(i == JFSG.waveHoverIndex){return "20px"}else{return "5px"} })
 		.attr("fill", "none");
-
-		// barDemo.selectAll("text").
-		//   data(data).
-		//   enter().
-		//   append("svg:text").
-		//   attr("x", function(datum, index) { return x(index) + barWidth; }).
-		//   attr("y", function(datum) { return height - y(datum.books); }).
-		//   attr("dx", -barWidth/2).
-		//   attr("dy", "1.2em").
-		//   attr("text-anchor", "middle").
-		//   text(function(datum) { return datum.books;}).
-		//   attr("fill", "white");
 	}else{
 		d3.select("#canvas")
-		.selectAll("path")
-		.data([data]) // set the new data
-		.attr("d", line);
+		.selectAll("path.line")
+		.data(dataWaves)
+		.attr("d", line)
+		.attr("stroke-width",  function(d, i) { if(i == JFSG.waveHoverIndex){return "20px"}else{return "5px"} });
 
-		// var barDemo = d3.select("#canvas");
-		// barDemo.selectAll("rect").
-		//   data(data).
-		//   attr("x", function(datum, index) { return x(index); }).
-		//   attr("y", function(datum) { return height - y(datum.books); }).
-		//   attr("height", function(datum) { return y(datum.books); }).
-		//   attr("width", barWidth).
-		//   attr("fill", "#2d578b");
 	}
 
 
@@ -219,23 +226,60 @@ JFSG.drawGame = function(){
 
 };
 
+//TODO: create better 2d search
+JFSG.findClosestIndex = function(x,y){
+	var w = JFSG.renderBox[2];
+	var x1 = w-JFSG.renderBox[0];
+
+	var i = 0;
+	var minDist = 100;
+	var minI = 1;
+	for(i = 1; i < JFSG.dataWaves.length; i++){
+		var wave = JFSG.dataWaves[i];
+		var length = wave.length;
+
+		var closestX = length * x +0.5 |0;
+		closestX = Math.max(0,Math.min(length-1,closestX));
+		var dist = Math.abs(wave[closestX]-2*(0.5-y));
+
+		console.log(i,2*(0.5-y),wave[closestX],dist);
+
+		if(dist < minDist){
+			minDist = dist;
+			minI = i;
+		}
+	}
+	console.log(minI);
+	return minI;
+};
+
+
 JFSG.mousemove = function(x,y){
-	var wave = JFSG.waves[JFSG.waves.length-1];
+	var wave = JFSG.waves[JFSG.editWaveIndex];
+
 
 	if(JFSG.mouse == "down"){
 		wave.freq = 1/(x+0.1);
 		wave.amp = Math.min(1,Math.max(-1,(y-0.5)*2));
+	}else{
+		JFSG.waveHoverIndex = JFSG.findClosestIndex(x,y);
 	}
 };
 
 JFSG.mousedown = function(x,y){
 	JFSG.mouse = "down";
 
+	JFSG.editWaveIndex = JFSG.waveHoverIndex-1;
+	JFSG.waveHoverIndex = -1;
 };
 
 JFSG.mouseup = function(x,y){
-	JFSG.mouse = "up";	
-	JFSG.waves[JFSG.waves.length] = {freq:1,amp:0};	
+	JFSG.mouse = "up";
+
+	// if(JFSG.editWaveIndex==0){JFSG.editWaveIndex=1;}
+	// if(JFSG.editWaveIndex >= JFSG.waves.length){
+	// 	JFSG.waves[JFSG.waves.length] = {freq:1,amp:0};	
+	// }
 };
 
 JFSG.winGame = function(){
@@ -293,8 +337,32 @@ JFSG.initEvents = function(){
 		JFSG.mousemove(x,y);
 	});
 
-	$(document).keypress(function (e) {
-		console.log("keypress: ", e.charCode);
+	$(document).keydown(function (e) {
+		console.log("keypress: ", e.keyCode);
+
+		if(e.keyCode == 32){
+			if(JFSG.timeConst == 0){
+
+				//start
+				JFSG.timeConst = 1;
+				JFSG.playTimeOffset = JFSG.startPlayTime;
+			}else{
+				
+				//stop
+				JFSG.timeConst = 0;
+				JFSG.playTimeOffset = JFSG.lastPlayTime-JFSG.startPlayTime;
+			//	JFSG.startPlayTime = JFSG.lastPlayTime-JFSG.startPlayTime;
+			}
+		}else if(e.keyCode == 38){
+
+			//Speed up
+			//TODO:  keep offset correct
+			JFSG.playSpeed *= 1.4;
+		}else if(e.keyCode == 40){
+
+			//Speed down
+			JFSG.playSpeed *= 1/1.4;
+		}
 
 		//112 = 'p'
 		//114 = 'r'
