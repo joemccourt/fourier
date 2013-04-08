@@ -31,7 +31,9 @@ window.onload = function(){
 	JFSG.initEvents();
 };
 
-JFSG.waves = [{freq:1,amp:0.5},{freq:5,amp:0.1},{freq:9,amp:0.3},{freq:3,amp:0.2}];
+JFSG.waves = [{freq:9,amp:0.3},{freq:3,amp:0.2}];
+JFSG.goalWave = [{freq:2,amp:0.5},{freq:5,amp:0.1}];
+
 JFSG.editWaveIndex = 0;
 
 JFSG.freq = 1;
@@ -44,6 +46,10 @@ JFSG.startPlayTime = -1;
 JFSG.playTimeOffset = 0;
 JFSG.playSpeed = 1/8000;
 JFSG.waveHoverIndex = 0;
+
+JFSG.ampInit = 0;
+JFSG.freqInit = 1;
+JFSG.downPoint = {x:0,y:0};
 
 JFSG.d3test = function(time){
 
@@ -61,16 +67,24 @@ JFSG.d3test = function(time){
   	var length = 1024;
   	var i,j;
 
-	for(j = 0; j < JFSG.waves.length+1; j++){
+	for(j = 0; j < JFSG.waves.length+2; j++){
 		dataWaves[j] = [];
 	}
 
 	for(i = 0; i < length; i++){
 		dataWaves[0][i] = 0;
+		dataWaves[1][i] = 0;
 		for(j = 0; j < JFSG.waves.length; j++){
 			var wave = JFSG.waves[j];
-			dataWaves[j+1][i] = wave.amp*Math.sin(wave.freq*(i/length+(time-JFSG.startPlayTime)*JFSG.playSpeed)*2*Math.PI);
-			dataWaves[0][i] += dataWaves[j+1][i];
+			dataWaves[j+2][i] = wave.amp*Math.sin(wave.freq*(i/length+(time-JFSG.startPlayTime)*JFSG.playSpeed)*2*Math.PI);
+			dataWaves[0][i] += dataWaves[j+2][i];
+		}
+
+		//Goal wave
+
+		for(j = 0; j < JFSG.goalWave.length; j++){
+			var wave = JFSG.goalWave[j];
+			dataWaves[1][i] += wave.amp*Math.sin(wave.freq*(i/length+(time-JFSG.startPlayTime)*JFSG.playSpeed)*2*Math.PI);
 		}
 	}
 
@@ -83,7 +97,7 @@ JFSG.d3test = function(time){
 	var x = d3.scale.linear().domain([0, length - 1]).range([0, width]);
     var y = d3.scale.linear().domain([-1, 1]).range([height-paddingV, 0+paddingV]);
 
-    var seriesColors = ['rgba(0,0,0,1)','rgba(0,255,0,0.5)','rgba(255,0,0,0.5)','rgba(0,150,0,0.5)','rgba(150,50,0,0.5)'];
+    var seriesColors = ['rgba(0,0,0,1)','rgba(100,100,100,1)','rgba(0,255,0,0.5)','rgba(255,0,0,0.5)','rgba(0,150,0,0.5)','rgba(150,50,0,0.5)'];
 
 	// add the canvas to the DOM
 	var line = d3.svg.line()
@@ -114,10 +128,7 @@ JFSG.d3test = function(time){
 		.data(dataWaves)
 		.attr("d", line)
 		.attr("stroke-width",  function(d, i) { if(i == JFSG.waveHoverIndex){return "20px"}else{return "5px"} });
-
 	}
-
-
 };
 
 JFSG.animate = function(time){
@@ -125,12 +136,12 @@ JFSG.animate = function(time){
 	var ctx = JFSG.ctx;
 	
 	if(JFSG.dirtyCanvas){
-
 		JFSG.dirtyCanvas = false;
 
-
 		JFSG.d3test(time);
-		JFSG.dirtyCanvas = true;
+		if(JFSG.timeConst){
+			JFSG.dirtyCanvas = true;
+		}
 
 		if(JFSG.checkWon && !JFSG.wonGame){
 			JFSG.checkWon = false;
@@ -234,7 +245,7 @@ JFSG.findClosestIndex = function(x,y){
 	var i = 0;
 	var minDist = 100;
 	var minI = 1;
-	for(i = 1; i < JFSG.dataWaves.length; i++){
+	for(i = 2; i < JFSG.dataWaves.length; i++){
 		var wave = JFSG.dataWaves[i];
 		var length = wave.length;
 
@@ -242,7 +253,7 @@ JFSG.findClosestIndex = function(x,y){
 		closestX = Math.max(0,Math.min(length-1,closestX));
 		var dist = Math.abs(wave[closestX]-2*(0.5-y));
 
-		console.log(i,2*(0.5-y),wave[closestX],dist);
+		// console.log(i,2*(0.5-y),wave[closestX],dist);
 
 		if(dist < minDist){
 			minDist = dist;
@@ -253,24 +264,40 @@ JFSG.findClosestIndex = function(x,y){
 	return minI;
 };
 
+JFSG.sign = function(x){if(x<0){return -1;}else if(x>0){return 1;}else{return 0;}};
 
 JFSG.mousemove = function(x,y){
 	var wave = JFSG.waves[JFSG.editWaveIndex];
 
-
+	JFSG.dirtyCanvas = true;
 	if(JFSG.mouse == "down"){
-		wave.freq = 1/(x+0.1);
-		wave.amp = Math.min(1,Math.max(-1,(y-0.5)*2));
+		//JFSG.freqInit*JFSG.downPoint.x = how many cycles to point
+		//wave.freq*x = same num cycles
+		wave.freq = JFSG.freqInit*JFSG.downPoint.x/x;
+		wave.amp  = Math.min(1,Math.max(-1,JFSG.ampInit-JFSG.sign(0.5-JFSG.downPoint.y)*(y-JFSG.downPoint.y)*2));
 	}else{
-		JFSG.waveHoverIndex = JFSG.findClosestIndex(x,y);
+		var newHoverIndex = JFSG.findClosestIndex(x,y);
+
+		if(newHoverIndex == JFSG.waveHoverIndex){
+			JFSG.dirtyCanvas = false;
+		}
+		JFSG.waveHoverIndex = newHoverIndex;
 	}
+
+
 };
 
 JFSG.mousedown = function(x,y){
 	JFSG.mouse = "down";
 
-	JFSG.editWaveIndex = JFSG.waveHoverIndex-1;
-	JFSG.waveHoverIndex = -1;
+	JFSG.editWaveIndex = JFSG.waveHoverIndex-2;
+	var wave = JFSG.waves[JFSG.editWaveIndex];
+
+	JFSG.ampInit = wave.amp;
+	JFSG.freqInit = wave.freq;
+	JFSG.downPoint = {x:x,y:y};
+
+	JFSG.waveHoverIndex = -10;
 };
 
 JFSG.mouseup = function(x,y){
@@ -346,6 +373,7 @@ JFSG.initEvents = function(){
 				//start
 				JFSG.timeConst = 1;
 				JFSG.playTimeOffset = JFSG.startPlayTime;
+				JFSG.dirtyCanvas = true;
 			}else{
 				
 				//stop
