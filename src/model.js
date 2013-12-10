@@ -47,3 +47,13 @@ FSG.getRMSFromGoal = function() {
 
 	return Math.sqrt(squares*dx);
 };
+
+FSG.getMatchScore = function() {
+	var RMS = FSG.getRMSFromGoal();
+
+	//TODO: this will require more tuning
+	var score = 100-8*100*RMS;
+	if(score < 0){score = 0;}
+
+	return score;
+};

@@ -1,4 +1,4 @@
-FSG.drawGame = function() {
+FSG.drawClear = function() {
 	var ctx = FSG.ctx;
 	ctx.save();
 
@@ -6,6 +6,16 @@ FSG.drawGame = function() {
 	var h = FSG.canvas.height;
 
 	ctx.clearRect(0,0,w,h);
+
+	ctx.restore();
+};
+
+FSG.drawGame = function() {
+	var ctx = FSG.ctx;
+	ctx.save();
+
+	var w = FSG.canvas.width;
+	var h = FSG.canvas.height;
 
 	var n = w;
 

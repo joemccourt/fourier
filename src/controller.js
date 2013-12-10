@@ -9,19 +9,12 @@ FSG.mouseState = "up";
 FSG.level = 0;
 
 FSG.userWaves = {
-	'wave-0': {
-		'color': 'rgb(200,100,100)',
-		'amp': 0.5,
-		'freq': 3
-	},
-	'wave-1': {
-		'color': 'rgb(100,100,200)',
-		'amp': 0.01,
-		'freq': 30
-	}
 };
 
-FSG.userWaveSelected = 'wave-0';
+FSG.maxUserWaveID = 0;
+
+
+FSG.userWaveSelected = 'wave-1';
 
 FSG.time = 0;
 
@@ -44,6 +37,9 @@ FSG.startSession = function() {
 
 	FSG.dirtyCanvas = true;
 	FSG.initEvents();
+
+	FSG.addWave(0.5,3);
+	FSG.addWave(0.02,30);
 };
 
 FSG.gameLoop = function(time) {
@@ -53,8 +49,8 @@ FSG.gameLoop = function(time) {
 	if(FSG.dirtyCanvas){
 		FSG.dirtyCanvas = false;
 
+		FSG.drawClear();
 		FSG.drawGame();
-		// FSG.drawClear();
 		// FSG.drawModules();
 	}
 
@@ -106,13 +102,10 @@ FSG.mousemove = function(x,y){
 			mouseFreq0 = -limit;
 		}
 
-		console.log(mouseFreq,mouseFreq0)
-
 		wave.freq = wave.freq0 * mouseFreq / mouseFreq0;
-
-
 		FSG.dirtyCanvas = true;
-		console.log("RMS: ",FSG.getRMSFromGoal());
+
+		console.log("Score: ",FSG.getMatchScore());
 	}
 };
 
@@ -142,6 +135,23 @@ FSG.resizeToFit = function() {
 	FSG.canvas.width  = w;
 	FSG.canvas.height = h;
 
+	FSG.dirtyCanvas = true;
+};
+
+FSG.addWave = function(amp,freq,color) {
+	if(typeof amp !== "number"){amp = 0.4;}
+	if(typeof freq !== "number"){freq = 2;}
+	if(typeof color !== "object"){
+		color = 'rgb('+(256*Math.random()|0)+','+(256*Math.random()|0)+','+(256*Math.random()|0)+')';
+	}
+
+	FSG.userWaves['wave-'+(FSG.maxUserWaveID+1)] = {
+		'color': color,
+		'amp': amp,
+		'freq': freq
+	};
+
+	FSG.maxUserWaveID++;
 	FSG.dirtyCanvas = true;
 };
 
