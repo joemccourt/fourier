@@ -13,6 +13,11 @@ FSG.userWaves = {
 
 FSG.maxUserWaveID = 0;
 
+FSG.gameBox = {x:0,y:0,w:1,h:1};
+FSG.functionBox = {x:0.1,y:0.1,w:0.5,h:0.75};
+FSG.menuBox = {x:0,y:0.75,w:1,h:0.25};
+
+FSG.mouseDownArea = "function"; //"menu"
 
 FSG.userWaveSelected = 'wave-1';
 
@@ -51,7 +56,7 @@ FSG.gameLoop = function(time) {
 
 		FSG.drawClear();
 		FSG.drawGame();
-		// FSG.drawModules();
+		FSG.drawMenu();
 	}
 
 	requestNextAnimationFrame(FSG.gameLoop);
@@ -60,17 +65,11 @@ FSG.gameLoop = function(time) {
 	FSG.lastFrameTime = time;
 };
 
-FSG.mousemove = function(x,y){
-	var w = FSG.canvas.width;
-	var h = FSG.canvas.height;
 
-	FSG.mousePos = {'x':x,'y':y};
-
-	if(FSG.mouseState === "down"){
-
+FSG.mousemoveFunction = function(x,y){
 		var wave = FSG.userWaves[FSG.userWaveSelected];
 		
-		var mouseAmp0 = -(FSG.mouseDownPos.y-0.5)*2;
+		var mouseAmp0 = -(FSG.mouseDownPosPrime.y-0.5)*2;
 		var offset = 0;
 		var ampLimit = 0.15;
 		if(mouseAmp0 < ampLimit && mouseAmp0 >= 0) {
@@ -84,7 +83,7 @@ FSG.mousemove = function(x,y){
 		var mouseAmp = -(y-0.5)*2+offset;
 		wave.amp = wave.amp0 * mouseAmp / mouseAmp0;
 
-		var mouseFreq0 = 1/FSG.mouseDownPos.x;
+		var mouseFreq0 = 1/FSG.mouseDownPosPrime.x;
 		var offset = 0;
 
 		var mouseFreq = 1/(x+offset);
@@ -104,8 +103,25 @@ FSG.mousemove = function(x,y){
 
 		wave.freq = wave.freq0 * mouseFreq / mouseFreq0;
 		FSG.dirtyCanvas = true;
+};
 
-		console.log("Score: ",FSG.getMatchScore());
+
+FSG.mousemove = function(x,y){
+	var w = FSG.canvas.width;
+	var h = FSG.canvas.height;
+
+	FSG.mousePos = {'x':x,'y':y};
+
+	if(FSG.mouseState === "down"){
+		if(FSG.mouseDownArea == "function") {
+			var box = FSG.functionBox;
+			var xPrime = (x - box.x) / box.w;
+			var yPrime = (y - box.y) / box.h;
+
+			FSG.mousemoveFunction(xPrime,yPrime);
+
+			console.log("Score: ",FSG.getMatchScore());
+		}
 	}
 };
 
@@ -114,9 +130,19 @@ FSG.mousedown = function(x,y){
 	FSG.mouseDownPos = {'x':x,'y':y};
 	FSG.mouseState = "down";
 	
-	var wave = FSG.userWaves[FSG.userWaveSelected];
-	wave.amp0 = wave.amp;
-	wave.freq0 = wave.freq;
+	if(true) {
+		FSG.mouseDownArea == "function";
+
+		var box = FSG.functionBox;
+		var xPrime = (x - box.x) / box.w;
+		var yPrime = (y - box.y) / box.h;
+
+		FSG.mouseDownPosPrime = {x:xPrime,y:yPrime};
+
+		var wave = FSG.userWaves[FSG.userWaveSelected];
+		wave.amp0 = wave.amp;
+		wave.freq0 = wave.freq;
+	}
 
 };
 
