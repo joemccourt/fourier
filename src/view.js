@@ -35,6 +35,7 @@ FSG.drawGame = function() {
 			var wave = FSG.userWaves[waveKey];
 			var waveFun = FSG.getWaveFun(waveKey);
 
+			n = Math.round(boxWidth/4);
 			var points = FSG.getWavePoints(0,1,n,waveFun);
 			ctx.strokeStyle = wave.color;
 			ctx.beginPath();
@@ -49,6 +50,7 @@ FSG.drawGame = function() {
 			ctx.stroke();
 		}
 	}
+	var n = boxWidth;
 
 	ctx.strokeStyle = 'black';
 	var points = FSG.getWavePoints(0,1,n,FSG.goalWave);
