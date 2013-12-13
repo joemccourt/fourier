@@ -10,7 +10,47 @@ FSG.drawClear = function() {
 	ctx.restore();
 };
 
-FSG.drawGame = function() {
+FSG.drawGrid = function() {
+	var ctx = FSG.ctx;
+	ctx.save();
+
+	var box = FSG.functionBox;
+
+	var w = FSG.canvas.width;
+	var h = FSG.canvas.height;
+
+	ctx.strokeStyle = 'rgb(219,249,249)';
+
+	ctx.lineWidth = 1;
+	var n = 5;
+	for(var i = 0; i < 2*n+1; i++) {
+		var height = i / (2*n) * h;
+		ctx.moveTo(box.x*w,box.y*h+box.h*height);
+		ctx.lineTo(box.x*w+box.w*w,box.y*h+box.h*height);
+	}
+	ctx.stroke();
+
+	ctx.beginPath();
+	n *= 2*Math.PI;
+	for(var i = 0; i < 2*n+1; i++) {
+		var width = i / (2*n) * w;
+		ctx.moveTo(box.x*w+box.w*width,box.y*h);
+		ctx.lineTo(box.x*w+box.w*width,box.y*h+box.h*h);
+	}
+	ctx.stroke();
+
+	ctx.beginPath();
+
+	ctx.strokeStyle = 'black';
+	// ctx.lineWidth = 3;
+	ctx.moveTo(box.x*w,box.y*h+box.h*h/2);
+	ctx.lineTo(box.x*w+box.w*w,box.y*h+box.h*h/2);
+	ctx.stroke();
+
+	ctx.restore();
+};
+
+FSG.drawFunctions = function() {
 	var ctx = FSG.ctx;
 	ctx.save();
 
@@ -89,8 +129,12 @@ FSG.drawGame = function() {
 	ctx.restore();
 };
 
-FSG.drawMenu = function() {
+FSG.drawGame = function() {
+	FSG.drawGrid();
+	FSG.drawFunctions();
+};
 
+FSG.drawMenu = function() {
 	var ctx = FSG.ctx;
 	ctx.save();
 

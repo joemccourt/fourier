@@ -14,7 +14,7 @@ FSG.userWaves = {
 FSG.maxUserWaveID = 0;
 
 FSG.gameBox = {x:0,y:0,w:1,h:1};
-FSG.functionBox = {x:0,y:0,w:1,h:0.75};
+FSG.functionBox = {x:0,y:0,w:1,h:0.75};//{x:0.2,y:0.1,w:0.5,h:0.75};
 FSG.menuBox = {x:0,y:0.75,w:1,h:0.25};
 
 FSG.mouseDownArea = "function"; //"menu"
