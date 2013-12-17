@@ -157,5 +157,33 @@ FSG.drawMenu = function() {
 	ctx.lineTo(x1,y1);
 
 	ctx.stroke();
+
+	var nCols = 5;
+	var nRows = 3;
+
+	for(var r = 0; r < nRows; r++) {
+		for(var c = 0; c < nCols; c++) {
+			var number = r*nCols+c+1;
+
+			ctx.textAlign = "center";
+			ctx.textBaseline = "middle";
+			ctx.font = 0.05*(w+h)/2 + "px Lucidia Regular";
+
+			if(number <= FSG.maxUserWaveID) {
+				var waveStr = "wave-"+number;
+				var wave = FSG.userWaves[waveStr];
+				ctx.fillStyle = wave.color;
+
+				if(FSG.userWaveSelected == waveStr) {
+					ctx.strokeText(""+number,x1+box.w*w*(c+0.5)/nCols,y1+box.h*h*(r+0.5)/nRows);
+				}
+
+				ctx.fillText(""+number,x1+box.w*w*(c+0.5)/nCols,y1+box.h*h*(r+0.5)/nRows);
+			}else if(number-1 == FSG.maxUserWaveID) {
+				ctx.fillText("+",x1+box.w*w*(c+0.5)/nCols,y1+box.h*h*(r+0.5)/nRows);
+			}
+		}
+	}
+
 	ctx.restore();
 };

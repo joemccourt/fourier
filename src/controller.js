@@ -106,15 +106,20 @@ FSG.mousemoveFunction = function(x,y){
 };
 
 FSG.mousedownMenu = function(x,y) {
-	if(y < 0.2) {
-		FSG.addWave(Math.random(),3);
-	}else{
-		var n = FSG.maxUserWaveID;
-
-		FSG.userWaveSelected = 'wave-' + (1+Math.floor((y-0.2)/(1-0.2)*n));
+	var n = FSG.maxUserWaveID;
+	var nCols = 5;
+	var nRows = 3;
+	var row = Math.floor(y*nRows);
+	var col = Math.floor(x*nCols);
+	var number = nCols*row+col+1;
+	if(number <= n) {
+		FSG.userWaveSelected = 'wave-' + number;
 		console.log(n,FSG.userWaveSelected)
+	}else if(number-1 == n) {
+		FSG.addWave(Math.random(),3);
 	}
 
+	FSG.dirtyCanvas = true;
 };
 
 FSG.mousemove = function(x,y){
