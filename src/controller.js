@@ -6,7 +6,7 @@ FSG.lastFrameTime = 0;
 FSG.mousePos = {'x':0.5,'y':0.5};
 FSG.mouseState = "up";
 
-FSG.level = 0;
+FSG.level = 1;
 
 FSG.userWaves = {
 };
@@ -37,6 +37,8 @@ FSG.startSession = function() {
 
 	//FSG.setLevelRenderBox();
 	// FSG.loadGameState();
+	FSG.score = 0;
+
 	FSG.resizeToFit();
 	FSG.startLevel();
 
@@ -136,7 +138,7 @@ FSG.mousemove = function(x,y){
 
 			FSG.mousemoveFunction(xPrime,yPrime);
 
-			console.log("Score: ",FSG.getMatchScore());
+			FSG.score = FSG.getMatchScore();
 		}
 	}
 };

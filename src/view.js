@@ -68,6 +68,9 @@ FSG.drawFunctions = function() {
 	var boxWidth = x2-x1;
 	var boxHeight = y2-y1;
 
+	var maxY = 2;
+	var minY = -2;
+
 	var n = boxWidth;
 
 	for(var waveKey in FSG.userWaves){
@@ -82,7 +85,7 @@ FSG.drawFunctions = function() {
 			for(var i = 0; i < n; i++) {
 
 				var drawX = x1+(i/n*1 + 0)*boxWidth;
-				var drawY = y1+((-0.5*points[i]+0.5)*1 + 0)*boxHeight;
+				var drawY = y1+((-0.5*points[i]/maxY+0.5)*1 + 0)*boxHeight;
 				drawY = drawY < y1 ? y1 : drawY > y2 ? y2 : drawY;
 
 				ctx.lineTo(drawX, drawY);
@@ -98,7 +101,7 @@ FSG.drawFunctions = function() {
 
 	for(var i = 0; i < n; i++) {
 		var drawX = x1+(i/n*1 + 0)*boxWidth;
-		var drawY = y1+((-0.5*points[i]+0.5)*1 + 0)*boxHeight;
+		var drawY = y1+((-0.5*points[i]/maxY+0.5)*1 + 0)*boxHeight;
 		drawY = drawY < y1 ? y1 : drawY > y2 ? y2 : drawY;
 
 		ctx.lineTo(drawX, drawY);
@@ -110,7 +113,7 @@ FSG.drawFunctions = function() {
 	ctx.beginPath();
 	for(var i = 0; i < n; i++) {
 		var drawX = x1+(i/n*1 + 0)*boxWidth;
-		var drawY = y1+((-0.5*points[i]+0.5)*1 + 0)*boxHeight;
+		var drawY = y1+((-0.5*points[i]/maxY+0.5)*1 + 0)*boxHeight;
 		drawY = drawY < y1 ? y1 : drawY > y2 ? y2 : drawY;
 
 		ctx.lineTo(drawX, drawY);
@@ -181,6 +184,8 @@ FSG.drawMenu = function() {
 				ctx.fillText(""+number,x1+box.w*w*(c+0.5)/nCols,y1+box.h*h*(r+0.5)/nRows);
 			}else if(number-1 == FSG.maxUserWaveID) {
 				ctx.fillText("+",x1+box.w*w*(c+0.5)/nCols,y1+box.h*h*(r+0.5)/nRows);
+			}else if(number-2 == FSG.maxUserWaveID) {
+				ctx.fillText(Math.round(FSG.score),x1+box.w*w*(c+0.5)/nCols,y1+box.h*h*(r+0.5)/nRows);
 			}
 		}
 	}

@@ -48,11 +48,24 @@ FSG.getRMSFromGoal = function() {
 	return Math.sqrt(squares*dx);
 };
 
+FSG.getMeanFromGoal = function() {
+	var userFun = FSG.getTotalUserFun();
+	var goal = FSG.goalWave;
+
+	var squares = 0;
+	var dx = 0.01;
+	for(var x = 0; x < 1; x += dx) {
+		squares += Math.abs(goal(x)-userFun(x),2);
+	}
+
+	return squares*dx;
+};
+
 FSG.getMatchScore = function() {
-	var RMS = FSG.getRMSFromGoal();
+	var RMS = FSG.getMeanFromGoal();
 
 	//TODO: this will require more tuning
-	var score = 100-8*100*RMS;
+	var score = 100-4*100*RMS;
 	if(score < 0){score = 0;}
 
 	return score;

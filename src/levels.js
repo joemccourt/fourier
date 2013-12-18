@@ -1,18 +1,39 @@
-FSG.startLevel = function() {
-	var lvl = FSG.level;
+FSG.levelConfig = {
+	'0': {
+		goalWave: 'sin',
+		thresholdScore: 95
+	},
 
+	'1': {
+		goalWave: 'step',
+		thresholdScore: 90
+	}
+};
+
+FSG.getGoalWave = function(goalWave) {
 	var wave;
-	switch(lvl) {
-		case 0:
-			wave = function(x){return 0.2*Math.sin(x*2*Math.PI);}
+	switch(goalWave) {
+		case 'sin':
+			wave = function(x){return Math.sin(x*2*Math.PI);}
 			break;
-		case 1:
-			wave = function(x){return x < 0.5 ? 0 : 1;}
+		case 'step':
+			wave = function(x){return x < 0.5 ? 1 : -1;}
 			break;
 		default:
 			wave = function(x){return Math.sin(x*2*Math.PI);}
 			break;
 	}
+	return wave;
+}
 
-	FSG.goalWave = wave;
+FSG.startLevel = function() {
+	var lvl = FSG.levelConfig[FSG.level];
+
+	if(!lvl) {
+		//womp womp womp
+		return;
+	}
+
+	FSG.goalWave = FSG.getGoalWave(lvl.goalWave);
+	FSG.thresholdScore = lvl.thresholdScore;
 };
