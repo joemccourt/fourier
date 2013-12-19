@@ -6,7 +6,7 @@ FSG.lastFrameTime = 0;
 FSG.mousePos = {'x':0.5,'y':0.5};
 FSG.mouseState = "up";
 
-FSG.level = 1;
+FSG.level = 0;
 
 FSG.userWaves = {
 };
@@ -67,6 +67,12 @@ FSG.gameLoop = function(time) {
 	FSG.lastFrameTime = time;
 };
 
+FSG.winLevel = function() {
+	console.log('win');
+	FSG.level++;
+	FSG.score = 0;
+	FSG.startLevel();
+};
 
 FSG.mousemoveFunction = function(x,y){
 	var wave = FSG.userWaves[FSG.userWaveSelected];
@@ -139,6 +145,9 @@ FSG.mousemove = function(x,y){
 			FSG.mousemoveFunction(xPrime,yPrime);
 
 			FSG.score = FSG.getMatchScore();
+			if(FSG.score > FSG.thresholdScore) {
+				FSG.winLevel();
+			}
 		}
 	}
 };
