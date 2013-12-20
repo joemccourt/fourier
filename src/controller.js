@@ -206,12 +206,14 @@ FSG.addWave = function(amp,freq,color) {
 		color = 'rgb('+(256*Math.random()|0)+','+(256*Math.random()|0)+','+(256*Math.random()|0)+')';
 	}
 
-	FSG.userWaves['wave-'+(FSG.maxUserWaveID+1)] = {
+	var waveStr = 'wave-'+(FSG.maxUserWaveID+1);
+	FSG.userWaves[waveStr] = {
 		'color': color,
 		'amp': amp,
 		'freq': freq
 	};
 
+	FSG.userWaveSelected = waveStr;
 	FSG.maxUserWaveID++;
 	FSG.dirtyCanvas = true;
 };
