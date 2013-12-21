@@ -4,7 +4,7 @@ FSG.levelConfig = {
 		thresholdScore: 95
 	},
 	'1': {
-		goalWave: 'step',
+		goalWave: 'sinc',
 		thresholdScore: 50
 	},
 	'2': {
@@ -16,7 +16,7 @@ FSG.levelConfig = {
 		thresholdScore: 50
 	},
 	'4': {
-		goalWave: 'sinc',
+		goalWave: 'step',
 		thresholdScore: 50
 	},
 	'5': {
@@ -61,6 +61,7 @@ FSG.startLevel = function() {
 		return;
 	}
 
+	FSG.maxUserWaveID = 0;
 	FSG.goalWave = FSG.getGoalWave(lvl.goalWave);
 	FSG.thresholdScore = lvl.thresholdScore;
 };

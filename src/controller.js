@@ -7,9 +7,8 @@ FSG.mousePos = {'x':0.5,'y':0.5};
 FSG.mouseState = "up";
 
 FSG.level = 0;
-
-FSG.userWaves = {
-};
+FSG.bestScores = {};
+FSG.userWaves = {};
 
 FSG.maxUserWaveID = 0;
 
@@ -26,7 +25,7 @@ FSG.time = 0;
 FSG.main = function() {
 	FSG.startSession();
 
-	requestNextAnimationFrame(FSG.gameLoop);
+	requestAnimationFrame(FSG.gameLoop);
 };
 
 window.onload = FSG.main;
@@ -36,7 +35,9 @@ FSG.startSession = function() {
 	FSG.ctx = FSG.canvas.getContext("2d");
 
 	//FSG.setLevelRenderBox();
-	// FSG.loadGameState();
+	FSG.newUser = true;
+	FSG.loadGameState();
+
 	FSG.score = 0;
 
 	FSG.resizeToFit();
@@ -45,8 +46,9 @@ FSG.startSession = function() {
 	FSG.dirtyCanvas = true;
 	FSG.initEvents();
 
-	FSG.addWave(0.5,3);
-	FSG.addWave(0.02,30);
+	if(FSG.newUser){
+		FSG.addWave(0.5,3);
+	}
 };
 
 FSG.gameLoop = function(time) {
@@ -61,7 +63,7 @@ FSG.gameLoop = function(time) {
 		FSG.drawMenu();
 	}
 
-	requestNextAnimationFrame(FSG.gameLoop);
+	requestAnimationFrame(FSG.gameLoop);
 
 	FSG.frameRenderTime = time - FSG.lastFrameTime;
 	FSG.lastFrameTime = time;
@@ -72,6 +74,21 @@ FSG.winLevel = function() {
 	FSG.level++;
 	FSG.score = 0;
 	FSG.startLevel();
+};
+
+FSG.checkScore = function() {
+	FSG.score = FSG.getMatchScore();
+	if(typeof FSG.bestScores[FSG.level] !== "number") {
+		FSG.bestScores[FSG.level] = 0;
+	}else if(FSG.score > FSG.bestScores[FSG.level]) {
+		FSG.bestScores[FSG.level] = FSG.score;
+	}
+
+	if(FSG.score > FSG.thresholdScore) {
+		FSG.winLevel();
+	}
+
+	FSG.saveGameState();
 };
 
 FSG.mousemoveFunction = function(x,y){
@@ -122,7 +139,6 @@ FSG.mousedownMenu = function(x,y) {
 	var number = nCols*row+col+1;
 	if(number <= n) {
 		FSG.userWaveSelected = 'wave-' + number;
-		console.log(n,FSG.userWaveSelected)
 	}else if(number-1 == n) {
 		FSG.addWave(Math.random(),3);
 	}
@@ -144,10 +160,8 @@ FSG.mousemove = function(x,y){
 
 			FSG.mousemoveFunction(xPrime,yPrime);
 
-			FSG.score = FSG.getMatchScore();
-			if(FSG.score > FSG.thresholdScore) {
-				FSG.winLevel();
-			}
+
+			FSG.checkScore();
 		}
 	}
 };
@@ -170,7 +184,6 @@ FSG.mousedown = function(x,y){
 		wave.amp0 = wave.amp;
 		wave.freq0 = wave.freq;
 	}
-
 
 	box = FSG.menuBox;
 	if(x >= box.x && x <= box.x+box.w && y >= box.y && y <= box.y+box.h) {
@@ -199,6 +212,36 @@ FSG.resizeToFit = function() {
 	FSG.dirtyCanvas = true;
 };
 
+FSG.loadGameState = function(){
+	if (!supports_html5_storage()) { return false; }
+
+	var localGameState = localStorage["FSG.gameState"];
+	if(typeof localGameState === "string") {
+		var gameState = JSON.parse(localGameState);
+
+		FSG.newUser = false;
+		FSG.userWaves = gameState.userWaves;
+		FSG.level = gameState.level;
+		FSG.userWaveSelected = gameState.userWaveSelected;
+		FSG.bestScores = gameState.bestScores;
+		FSG.maxUserWaveID = gameState.maxUserWaveID;
+	}
+};
+
+FSG.saveGameState = function() {
+	if (!supports_html5_storage()) { return false; }
+
+	var gameState = {
+		'userWaves': FSG.userWaves,
+		'level': FSG.level,
+		'userWaveSelected': FSG.userWaveSelected,
+		'bestScores': FSG.bestScores,
+		'maxUserWaveID': FSG.maxUserWaveID
+	};
+
+	localStorage["FSG.gameState"] = JSON.stringify(gameState);
+};
+
 FSG.addWave = function(amp,freq,color) {
 	if(typeof amp !== "number"){amp = 0.4;}
 	if(typeof freq !== "number"){freq = 2;}
@@ -224,38 +267,38 @@ FSG.initEvents = function(){
 		FSG.resizeToFit();
 	});
 
-		$(window).mousemove(function (e) {
-				var offset = $(FSG.canvasID).offset();
-				var x = e.pageX - offset.left;
-				var y = e.pageY - offset.top;
+	$(window).mousemove(function (e) {
+			var offset = $(FSG.canvasID).offset();
+			var x = e.pageX - offset.left;
+			var y = e.pageY - offset.top;
 
-		var w = FSG.canvas.width;
-		var h = FSG.canvas.height;
+			var w = FSG.canvas.width;
+			var h = FSG.canvas.height;
 
-				FSG.mousemove(x/w,y/h);
-		});
+			FSG.mousemove(x/w,y/h);
+	});
 
-		$(window).mousedown(function (e) {
-				var offset = $(FSG.canvasID).offset();
-				var x = e.pageX - offset.left;
-				var y = e.pageY - offset.top;
+	$(window).mousedown(function (e) {
+			var offset = $(FSG.canvasID).offset();
+			var x = e.pageX - offset.left;
+			var y = e.pageY - offset.top;
 
-		var w = FSG.canvas.width;
-		var h = FSG.canvas.height;
+			var w = FSG.canvas.width;
+			var h = FSG.canvas.height;
 
-				FSG.mousedown(x/w,y/h);
-		});
+			FSG.mousedown(x/w,y/h);
+	});
 
-		$(window).mouseup(function (e) {
-				var offset = $(FSG.canvasID).offset();
-				var x = e.pageX - offset.left;
-				var y = e.pageY - offset.top;
+	$(window).mouseup(function (e) {
+			var offset = $(FSG.canvasID).offset();
+			var x = e.pageX - offset.left;
+			var y = e.pageY - offset.top;
 
-		var w = FSG.canvas.width;
-		var h = FSG.canvas.height;
+			var w = FSG.canvas.width;
+			var h = FSG.canvas.height;
 
-				FSG.mouseup(x/w,y/h);
-		});
+			FSG.mouseup(x/w,y/h);
+	});
 };
 
 // *** LocalStorage Check ***
@@ -267,87 +310,34 @@ function supports_html5_storage() {
 	}
 }
 
-// Reprinted from Core HTML5 Canvas
-// By David Geary
-window.requestNextAnimationFrame =
-	 (function () {
-			var originalWebkitRequestAnimationFrame = undefined,
-					wrapper = undefined,
-					callback = undefined,
-					geckoVersion = 0,
-					userAgent = navigator.userAgent,
-					index = 0,
-					self = this;
+// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+// http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
 
-			// Workaround for Chrome 10 bug where Chrome
-			// does not pass the time to the animation function
-			
-			if (window.webkitRequestAnimationFrame) {
-				 // Define the wrapper
-
-				 wrapper = function (time) {
-					 if (time === undefined) {
-							time = +new Date();
-					 }
-					 self.callback(time);
-				 };
-
-				 // Make the switch
-					
-				 originalWebkitRequestAnimationFrame = window.webkitRequestAnimationFrame;    
-
-				 window.webkitRequestAnimationFrame = function (callback, element) {
-						self.callback = callback;
-
-						// Browser calls the wrapper and wrapper calls the callback
-						
-						originalWebkitRequestAnimationFrame(wrapper, element);
-				 }
-			}
-
-			// Workaround for Gecko 2.0, which has a bug in
-			// mozRequestAnimationFrame() that restricts animations
-			// to 30-40 fps.
-
-			if (window.mozRequestAnimationFrame) {
-				 // Check the Gecko version. Gecko is used by browsers
-				 // other than Firefox. Gecko 2.0 corresponds to
-				 // Firefox 4.0.
-				 
-				 index = userAgent.indexOf('rv:');
-
-				 if (userAgent.indexOf('Gecko') != -1) {
-						geckoVersion = userAgent.substr(index + 3, 3);
-
-						if (geckoVersion === '2.0') {
-							 // Forces the return statement to fall through
-							 // to the setTimeout() function.
-
-							 window.mozRequestAnimationFrame = undefined;
-						}
-				 }
-			}
-			
-			return window.requestAnimationFrame   ||
-				 window.webkitRequestAnimationFrame ||
-				 window.mozRequestAnimationFrame    ||
-				 window.oRequestAnimationFrame      ||
-				 window.msRequestAnimationFrame     ||
-
-				 function (callback, element) {
-						var start,
-								finish;
-
-
-						window.setTimeout( function () {
-							 start = +new Date();
-							 callback(start);
-							 finish = +new Date();
-
-							 self.timeout = 1000 / 60 - (finish - start);
-
-						}, self.timeout);
-				 };
-			}
-	 )
-();
+// requestAnimationFrame polyfill by Erik Möller. fixes from Paul Irish and Tino Zijdel
+ 
+// MIT license
+ 
+(function() {
+    var lastTime = 0;
+    var vendors = ['ms', 'moz', 'webkit', 'o'];
+    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+        window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] 
+                                   || window[vendors[x]+'CancelRequestAnimationFrame'];
+    }
+ 
+    if (!window.requestAnimationFrame)
+        window.requestAnimationFrame = function(callback, element) {
+            var currTime = new Date().getTime();
+            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            var id = window.setTimeout(function() { callback(currTime + timeToCall); }, 
+              timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
+        };
+ 
+    if (!window.cancelAnimationFrame)
+        window.cancelAnimationFrame = function(id) {
+            clearTimeout(id);
+        };
+}());

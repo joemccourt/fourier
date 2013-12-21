@@ -1,3 +1,6 @@
+FSG.maxY = 2;
+FSG.minY = -2;
+
 FSG.drawClear = function() {
 	var ctx = FSG.ctx;
 	ctx.save();
@@ -22,7 +25,7 @@ FSG.drawGrid = function() {
 	ctx.strokeStyle = 'rgb(219,249,249)';
 
 	ctx.lineWidth = 1;
-	var n = 5;
+	var n = 5;// * (FSG.maxY - FSG.minY);
 	for(var i = 0; i < 2*n+1; i++) {
 		var height = i / (2*n) * h;
 		ctx.moveTo(box.x*w,box.y*h+box.h*height);
@@ -31,7 +34,7 @@ FSG.drawGrid = function() {
 	ctx.stroke();
 
 	ctx.beginPath();
-	n *= 2*Math.PI;
+	n = 5;
 	for(var i = 0; i < 2*n+1; i++) {
 		var width = i / (2*n) * w;
 		ctx.moveTo(box.x*w+box.w*width,box.y*h);
@@ -68,8 +71,8 @@ FSG.drawFunctions = function() {
 	var boxWidth = x2-x1;
 	var boxHeight = y2-y1;
 
-	var maxY = 2;
-	var minY = -2;
+	var maxY = FSG.maxY;
+	var minY = FSG.minY;
 
 	var n = boxWidth;
 
@@ -78,19 +81,6 @@ FSG.drawFunctions = function() {
 	var points = FSG.getWavePoints(0,1,n,FSG.goalWave);
 	ctx.beginPath();
 
-	for(var i = 0; i < n; i++) {
-		var drawX = x1+(i/n*1 + 0)*boxWidth;
-		var drawY = y1+((-0.5*points[i]/maxY+0.5)*1 + 0)*boxHeight;
-		drawY = drawY < y1 ? y1 : drawY > y2 ? y2 : drawY;
-
-		ctx.lineTo(drawX, drawY);
-	}
-	ctx.stroke();
-
-	ctx.strokeStyle = 'black';
-	var points = FSG.getWavePoints(0,1,n,FSG.getTotalUserFun());
-	ctx.lineWidth = 3;
-	ctx.beginPath();
 	for(var i = 0; i < n; i++) {
 		var drawX = x1+(i/n*1 + 0)*boxWidth;
 		var drawY = y1+((-0.5*points[i]/maxY+0.5)*1 + 0)*boxHeight;
@@ -130,6 +120,20 @@ FSG.drawFunctions = function() {
 			ctx.stroke();
 		}
 	}
+
+
+	ctx.strokeStyle = 'black';
+	var points = FSG.getWavePoints(0,1,n,FSG.getTotalUserFun());
+	ctx.lineWidth = 3;
+	ctx.beginPath();
+	for(var i = 0; i < n; i++) {
+		var drawX = x1+(i/n*1 + 0)*boxWidth;
+		var drawY = y1+((-0.5*points[i]/maxY+0.5)*1 + 0)*boxHeight;
+		drawY = drawY < y1 ? y1 : drawY > y2 ? y2 : drawY;
+
+		ctx.lineTo(drawX, drawY);
+	}
+	ctx.stroke();
 
 	ctx.restore();
 };
