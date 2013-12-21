@@ -186,7 +186,7 @@ FSG.drawMenu = function() {
 			var bxM = x1+box.w*w*(c+0.5)/nCols;
 			var byM = y1+box.h*h*(r+0.5)/nRows;
 
-			var delta = 3;
+			var delta = Math.max(bx2-bx1,by2-by1) * 0.03;
 			ctx.beginPath();
 			ctx.moveTo(bx1+delta,by1+delta);
 			ctx.lineTo(bx2-delta,by1+delta);
@@ -197,27 +197,36 @@ FSG.drawMenu = function() {
 			if(number <= FSG.maxUserWaveID) {
 				var waveStr = "wave-"+number;
 				var wave = FSG.userWaves[waveStr];
-				ctx.fillStyle = wave.color;
+				ctx.lineWidth = 2;
 
+				var grd = ctx.createLinearGradient(bx1+delta,by1+delta,bx1+delta,by2-delta);
+				if(FSG.userWaveSelected == waveStr) {
+					grd.addColorStop(1-0, 'rgb(88,113,150)');
+					grd.addColorStop(1-0.5, 'rgb(100,165,255)');
+					grd.addColorStop(1-0.9, 'rgb(100,165,255)');
+					grd.addColorStop(1-1, 'rgb(88,113,150)');
+				}else{
+					grd.addColorStop(0, 'rgb(220,235,255)');
+					grd.addColorStop(0.5, 'rgb(100,165,255)');
+					grd.addColorStop(0.9, 'rgb(100,165,255)');
+					grd.addColorStop(1, 'rgb(68,93,130)');
+				}
+				
+				ctx.fillStyle = grd;
+				ctx.strokeStyle = wave.color;
 
 				ctx.fill();
-				
-				if(FSG.userWaveSelected == waveStr) {
-					ctx.strokeStyle = 'black';
-					ctx.lineWidth = 2;
-					ctx.stroke();
-					//ctx.strokeText(""+number,x1+box.w*w*(c+0.5)/nCols,y1+box.h*h*(r+0.5)/nRows);
-				}
+				ctx.stroke();
 
 				ctx.fillStyle = 'black';
 				ctx.fillText(""+number,bxM,byM);
 			}else if(number-1 == FSG.maxUserWaveID) {
+				ctx.strokeStyle = 'black';
 				ctx.fillText("+",bxM,byM);
 				ctx.stroke();
 			}else if(number-2 == FSG.maxUserWaveID) {
 				ctx.fillText(Math.round(FSG.score),bxM,byM);
 			}
-
 		}
 	}
 

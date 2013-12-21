@@ -53,7 +53,7 @@ FSG.getGoalWave = function(goalWave) {
 	return wave;
 }
 
-FSG.startLevel = function() {
+FSG.setLevel = function() {
 	var lvl = FSG.levelConfig[FSG.level];
 
 	if(!lvl) {
@@ -61,7 +61,14 @@ FSG.startLevel = function() {
 		return;
 	}
 
-	FSG.maxUserWaveID = 0;
 	FSG.goalWave = FSG.getGoalWave(lvl.goalWave);
 	FSG.thresholdScore = lvl.thresholdScore;
+};
+
+FSG.startNewLevel = function() {
+	FSG.maxUserWaveID = 0;
+	FSG.userWaves = {};
+	FSG.setLevel();
+	FSG.addWave(0.5,3);
+	FSG.userWaveSelected = undefined;
 };

@@ -41,7 +41,7 @@ FSG.startSession = function() {
 	FSG.score = 0;
 
 	FSG.resizeToFit();
-	FSG.startLevel();
+	FSG.setLevel();
 
 	FSG.dirtyCanvas = true;
 	FSG.initEvents();
@@ -73,7 +73,7 @@ FSG.winLevel = function() {
 	console.log('win');
 	FSG.level++;
 	FSG.score = 0;
-	FSG.startLevel();
+	FSG.startNewLevel();
 };
 
 FSG.checkScore = function() {
@@ -259,6 +259,8 @@ FSG.addWave = function(amp,freq,color) {
 	FSG.userWaveSelected = waveStr;
 	FSG.maxUserWaveID++;
 	FSG.dirtyCanvas = true;
+
+	FSG.saveGameState();
 };
 
 // *** Event binding *** //
