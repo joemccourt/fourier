@@ -7,6 +7,8 @@ FSG.mousePos = {'x':0.5,'y':0.5};
 FSG.mouseState = "up";
 
 FSG.level = 0;
+FSG.levelWon = false;
+
 FSG.bestScores = {};
 FSG.userWaves = {};
 
@@ -17,6 +19,11 @@ FSG.functionBox = {x:0,y:0,w:1,h:0.75};//{x:0.2,y:0.1,w:0.5,h:0.75};
 FSG.menuBox = {x:0,y:0.75,w:1,h:0.25};
 
 FSG.mouseDownArea = "function"; //"menu"
+
+// "play" - level play phase
+// "win" - prompt on win to keep playing or go to next level
+// "board" - level board view
+FSG.gamePhase = "play";
 
 FSG.userWaveSelected = 'wave-1';
 
@@ -70,10 +77,13 @@ FSG.gameLoop = function(time) {
 };
 
 FSG.winLevel = function() {
-	console.log('win');
-	FSG.level++;
-	FSG.score = 0;
-	FSG.startNewLevel();
+	if(!FSG.levelWon && FSG.gamePhase == "play") {
+		console.log('win');
+		//FSG.gamePhase = "win";
+		FSG.level++;
+		FSG.score = 0;
+		FSG.startNewLevel();
+	}
 };
 
 FSG.checkScore = function() {
@@ -91,78 +101,13 @@ FSG.checkScore = function() {
 	FSG.saveGameState();
 };
 
-FSG.mousemoveFunction = function(x,y){
-	var wave = FSG.userWaves[FSG.userWaveSelected];
-	
-	var mouseAmp0 = -(FSG.mouseDownPosPrime.y-0.5)*2;
-	var offset = 0;
-	var ampLimit = 0.15;
-	if(mouseAmp0 < ampLimit && mouseAmp0 >= 0) {
-		offset = ampLimit-mouseAmp0;
-		mouseAmp0 = ampLimit;
-	}else if(mouseAmp0 > -ampLimit && mouseAmp0 < 0) {
-		offset = -ampLimit-mouseAmp0;
-		mouseAmp0 = -ampLimit;
-	}
-
-	var mouseAmp = -(y-0.5)*2+offset;
-	wave.amp = wave.amp0 * mouseAmp / mouseAmp0;
-
-	var mouseFreq0 = 1/FSG.mouseDownPosPrime.x;
-	var offset = 0;
-
-	var mouseFreq = 1/(x+offset);
-
-	var limit = 100;
-	if(mouseFreq > limit) {
-		mouseFreq = limit;
-	}else if(mouseFreq < -limit) {
-		mouseFreq = -limit;
-	}
-	
-	if(mouseFreq0 > limit) {
-		mouseFreq0 = limit;	
-	}else if(mouseFreq0 < -limit) {
-		mouseFreq0 = -limit;
-	}
-
-	wave.freq = wave.freq0 * mouseFreq / mouseFreq0;
-	FSG.dirtyCanvas = true;
-};
-
-FSG.mousedownMenu = function(x,y) {
-	var n = FSG.maxUserWaveID;
-	var nCols = 5;
-	var nRows = 3;
-	var row = Math.floor(y*nRows);
-	var col = Math.floor(x*nCols);
-	var number = nCols*row+col+1;
-	if(number <= n) {
-		FSG.userWaveSelected = 'wave-' + number;
-	}else if(number-1 == n) {
-		FSG.addWave(Math.random(),3);
-	}
-
-	FSG.dirtyCanvas = true;
-};
-
-FSG.mousemove = function(x,y){
-	var w = FSG.canvas.width;
-	var h = FSG.canvas.height;
-
-	FSG.mousePos = {'x':x,'y':y};
-
-	if(FSG.mouseState === "down"){
-		if(FSG.mouseDownArea == "function") {
-			var box = FSG.functionBox;
-			var xPrime = (x - box.x) / box.w;
-			var yPrime = (y - box.y) / box.h;
-
-			FSG.mousemoveFunction(xPrime,yPrime);
-
-
-			FSG.checkScore();
-		}
+FSG.mousemove = function(x,y) {
+	if(FSG.gamePhase == "play") {
+		FSG.mousemovePlay(x,y);
+	}else if(FSG.gamePhase == "win") {
+		// FSG.mousemoveWin(x,y);
+	}else if(FSG.gamePhase == "board") {
+		// FSG.mousemoveBoard(x,y);
 	}
 };
 
@@ -170,27 +115,13 @@ FSG.mousedown = function(x,y){
 	FSG.mousePos = {'x':x,'y':y};
 	FSG.mouseDownPos = {'x':x,'y':y};
 	FSG.mouseState = "down";
-	
-	var box = FSG.functionBox;
-	FSG.mouseDownArea = "";
-	if(x >= box.x && x <= box.x+box.w && y >= box.y && y <= box.y+box.h) {
-		FSG.mouseDownArea = "function";
-		var xPrime = (x - box.x) / box.w;
-		var yPrime = (y - box.y) / box.h;
 
-		FSG.mouseDownPosPrime = {x:xPrime,y:yPrime};
-
-		var wave = FSG.userWaves[FSG.userWaveSelected];
-		wave.amp0 = wave.amp;
-		wave.freq0 = wave.freq;
-	}
-
-	box = FSG.menuBox;
-	if(x >= box.x && x <= box.x+box.w && y >= box.y && y <= box.y+box.h) {
-		FSG.mouseDownArea = "menu";
-		var xPrime = (x - box.x) / box.w;
-		var yPrime = (y - box.y) / box.h;
-		FSG.mousedownMenu(xPrime,yPrime);		
+	if(FSG.gamePhase == "play") {
+		FSG.mousedownPlay(x,y);
+	}else if(FSG.gamePhase == "win") {
+		// FSG.mousedownWin(x,y);
+	}else if(FSG.gamePhase == "board") {
+		// FSG.mousedownBoard(x,y);
 	}
 };
 
@@ -242,27 +173,6 @@ FSG.saveGameState = function() {
 	localStorage["FSG.gameState"] = JSON.stringify(gameState);
 };
 
-FSG.addWave = function(amp,freq,color) {
-	if(typeof amp !== "number"){amp = 0.4;}
-	if(typeof freq !== "number"){freq = 2;}
-	if(typeof color !== "object"){
-		color = 'rgb('+(256*Math.random()|0)+','+(256*Math.random()|0)+','+(256*Math.random()|0)+')';
-	}
-
-	var waveStr = 'wave-'+(FSG.maxUserWaveID+1);
-	FSG.userWaves[waveStr] = {
-		'color': color,
-		'amp': amp,
-		'freq': freq
-	};
-
-	FSG.userWaveSelected = waveStr;
-	FSG.maxUserWaveID++;
-	FSG.dirtyCanvas = true;
-
-	FSG.saveGameState();
-};
-
 // *** Event binding *** //
 FSG.initEvents = function(){
 	$(window).resize(function(){
@@ -270,36 +180,36 @@ FSG.initEvents = function(){
 	});
 
 	$(window).mousemove(function (e) {
-			var offset = $(FSG.canvasID).offset();
-			var x = e.pageX - offset.left;
-			var y = e.pageY - offset.top;
+		var offset = $(FSG.canvasID).offset();
+		var x = e.pageX - offset.left;
+		var y = e.pageY - offset.top;
 
-			var w = FSG.canvas.width;
-			var h = FSG.canvas.height;
+		var w = FSG.canvas.width;
+		var h = FSG.canvas.height;
 
-			FSG.mousemove(x/w,y/h);
+		FSG.mousemove(x/w,y/h);
 	});
 
 	$(window).mousedown(function (e) {
-			var offset = $(FSG.canvasID).offset();
-			var x = e.pageX - offset.left;
-			var y = e.pageY - offset.top;
+		var offset = $(FSG.canvasID).offset();
+		var x = e.pageX - offset.left;
+		var y = e.pageY - offset.top;
 
-			var w = FSG.canvas.width;
-			var h = FSG.canvas.height;
+		var w = FSG.canvas.width;
+		var h = FSG.canvas.height;
 
-			FSG.mousedown(x/w,y/h);
+		FSG.mousedown(x/w,y/h);
 	});
 
 	$(window).mouseup(function (e) {
-			var offset = $(FSG.canvasID).offset();
-			var x = e.pageX - offset.left;
-			var y = e.pageY - offset.top;
+		var offset = $(FSG.canvasID).offset();
+		var x = e.pageX - offset.left;
+		var y = e.pageY - offset.top;
 
-			var w = FSG.canvas.width;
-			var h = FSG.canvas.height;
+		var w = FSG.canvas.width;
+		var h = FSG.canvas.height;
 
-			FSG.mouseup(x/w,y/h);
+		FSG.mouseup(x/w,y/h);
 	});
 };
 

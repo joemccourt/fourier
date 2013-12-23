@@ -176,7 +176,7 @@ FSG.drawMenu = function() {
 
 			ctx.textAlign = "center";
 			ctx.textBaseline = "middle";
-			ctx.font = 0.05*(w+h)/2 + "px Lucidia Regular";
+			ctx.font = 0.35*Math.min(w,0.2*h) + "px Lucidia Regular";
 			var bx1 = x1+box.w*w*(c+0)/nCols;
 			var bx2 = x1+box.w*w*(c+1)/nCols;
 
@@ -211,7 +211,7 @@ FSG.drawMenu = function() {
 					grd.addColorStop(0.9, 'rgb(100,165,255)');
 					grd.addColorStop(1, 'rgb(68,93,130)');
 				}
-				
+
 				ctx.fillStyle = grd;
 				ctx.strokeStyle = wave.color;
 

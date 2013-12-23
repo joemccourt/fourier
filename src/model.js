@@ -35,6 +35,27 @@ FSG.getTotalUserFun = function() {
 	}
 };
 
+FSG.addWave = function(amp,freq,color) {
+	if(typeof amp !== "number"){amp = 0.4;}
+	if(typeof freq !== "number"){freq = 2;}
+	if(typeof color !== "object"){
+		color = 'rgb('+(256*Math.random()|0)+','+(256*Math.random()|0)+','+(256*Math.random()|0)+')';
+	}
+
+	var waveStr = 'wave-'+(FSG.maxUserWaveID+1);
+	FSG.userWaves[waveStr] = {
+		'color': color,
+		'amp': amp,
+		'freq': freq
+	};
+
+	FSG.userWaveSelected = waveStr;
+	FSG.maxUserWaveID++;
+	FSG.dirtyCanvas = true;
+
+	FSG.saveGameState();
+};
+
 FSG.getRMSFromGoal = function() {
 	var userFun = FSG.getTotalUserFun();
 	var goal = FSG.goalWave;

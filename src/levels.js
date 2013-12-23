@@ -1,7 +1,7 @@
 FSG.levelConfig = {
 	'0': {
 		goalWave: 'sin',
-		thresholdScore: 95
+		thresholdScore: 90
 	},
 	'1': {
 		goalWave: 'sinc',
@@ -68,7 +68,9 @@ FSG.setLevel = function() {
 FSG.startNewLevel = function() {
 	FSG.maxUserWaveID = 0;
 	FSG.userWaves = {};
-	FSG.setLevel();
 	FSG.addWave(0.5,3);
-	FSG.userWaveSelected = undefined;
+	FSG.setLevel();
+
+	// A bit hacky, but this fixes move problems
+	FSG.mouseState = "up";
 };
