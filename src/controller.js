@@ -68,6 +68,10 @@ FSG.gameLoop = function(time) {
 		FSG.drawClear();
 		FSG.drawGame();
 		FSG.drawMenu();
+
+		if(FSG.gamePhase == "win") {
+			FSG.drawWin();
+		}
 	}
 
 	requestAnimationFrame(FSG.gameLoop);
@@ -76,13 +80,17 @@ FSG.gameLoop = function(time) {
 	FSG.lastFrameTime = time;
 };
 
+FSG.nextLevel = function() {
+	FSG.level++;
+	FSG.gamePhase = "play";
+
+	FSG.score = 0;
+	FSG.startNewLevel();
+};
+
 FSG.winLevel = function() {
 	if(!FSG.levelWon && FSG.gamePhase == "play") {
-		console.log('win');
-		//FSG.gamePhase = "win";
-		FSG.level++;
-		FSG.score = 0;
-		FSG.startNewLevel();
+		FSG.gamePhase = "win";
 	}
 };
 
@@ -105,7 +113,7 @@ FSG.mousemove = function(x,y) {
 	if(FSG.gamePhase == "play") {
 		FSG.mousemovePlay(x,y);
 	}else if(FSG.gamePhase == "win") {
-		// FSG.mousemoveWin(x,y);
+		FSG.mousemoveWin(x,y);
 	}else if(FSG.gamePhase == "board") {
 		// FSG.mousemoveBoard(x,y);
 	}
@@ -119,7 +127,7 @@ FSG.mousedown = function(x,y){
 	if(FSG.gamePhase == "play") {
 		FSG.mousedownPlay(x,y);
 	}else if(FSG.gamePhase == "win") {
-		// FSG.mousedownWin(x,y);
+		FSG.mousedownWin(x,y);
 	}else if(FSG.gamePhase == "board") {
 		// FSG.mousedownBoard(x,y);
 	}
@@ -156,6 +164,7 @@ FSG.loadGameState = function(){
 		FSG.userWaveSelected = gameState.userWaveSelected;
 		FSG.bestScores = gameState.bestScores;
 		FSG.maxUserWaveID = gameState.maxUserWaveID;
+		FSG.gamePhase = gameState.gamePhase;
 	}
 };
 
@@ -167,7 +176,8 @@ FSG.saveGameState = function() {
 		'level': FSG.level,
 		'userWaveSelected': FSG.userWaveSelected,
 		'bestScores': FSG.bestScores,
-		'maxUserWaveID': FSG.maxUserWaveID
+		'maxUserWaveID': FSG.maxUserWaveID,
+		'gamePhase': FSG.gamePhase
 	};
 
 	localStorage["FSG.gameState"] = JSON.stringify(gameState);

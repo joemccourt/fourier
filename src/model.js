@@ -1,5 +1,17 @@
 FSG.goalWave = function(x){return Math.sin(x*2*Math.PI);}
 
+FSG.getSubBox = function(boxParent,boxChild) {
+	var box = {};
+
+	box.x = boxParent.x + boxParent.w * boxChild.x;
+	box.y = boxParent.y + boxParent.h * boxChild.y;
+
+	box.w = boxParent.w * boxChild.w;
+	box.h = boxParent.h * boxChild.h;
+
+	return box;
+};
+
 FSG.getWavePoints = function(min,max,n,evalFunction) {
 
 	var output = [];
