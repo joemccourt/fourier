@@ -88,6 +88,11 @@ FSG.nextLevel = function() {
 	FSG.startNewLevel();
 };
 
+FSG.keepPlaying = function() {
+	FSG.gamePhase = "won";
+	FSG.dirtyCanvas = true;
+};
+
 FSG.winLevel = function() {
 	if(!FSG.levelWon && FSG.gamePhase == "play") {
 		FSG.gamePhase = "win";
@@ -102,7 +107,7 @@ FSG.checkScore = function() {
 		FSG.bestScores[FSG.level] = FSG.score;
 	}
 
-	if(FSG.score > FSG.thresholdScore) {
+	if(FSG.score > FSG.thresholdScore && FSG.gamePhase == "play") {
 		FSG.winLevel();
 	}
 
@@ -110,7 +115,7 @@ FSG.checkScore = function() {
 };
 
 FSG.mousemove = function(x,y) {
-	if(FSG.gamePhase == "play") {
+	if(FSG.gamePhase == "play" || FSG.gamePhase == "won") {
 		FSG.mousemovePlay(x,y);
 	}else if(FSG.gamePhase == "win") {
 		FSG.mousemoveWin(x,y);
@@ -124,7 +129,7 @@ FSG.mousedown = function(x,y){
 	FSG.mouseDownPos = {'x':x,'y':y};
 	FSG.mouseState = "down";
 
-	if(FSG.gamePhase == "play") {
+	if(FSG.gamePhase == "play" || FSG.gamePhase == "won") {
 		FSG.mousedownPlay(x,y);
 	}else if(FSG.gamePhase == "win") {
 		FSG.mousedownWin(x,y);
