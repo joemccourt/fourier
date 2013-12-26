@@ -22,6 +22,7 @@ FSG.mouseDownArea = "function"; //"menu"
 
 // "play" - level play phase
 // "win" - prompt on win to keep playing or go to next level
+// "menu" - buttons to quit, restart
 // "board" - level board view
 FSG.gamePhase = "play";
 
@@ -93,6 +94,11 @@ FSG.keepPlaying = function() {
 	FSG.dirtyCanvas = true;
 };
 
+FSG.exitGame = function() {
+	FSG.gamePhase = "board";
+	FSG.dirtyCanvas = true;
+};
+
 FSG.winLevel = function() {
 	if(!FSG.levelWon && FSG.gamePhase == "play") {
 		FSG.gamePhase = "win";
@@ -133,6 +139,8 @@ FSG.mousedown = function(x,y){
 		FSG.mousedownPlay(x,y);
 	}else if(FSG.gamePhase == "win") {
 		FSG.mousedownWin(x,y);
+	}else if(FSG.gamePhase == "menu") {
+		//FSG.mousedownMenu(x,y);
 	}else if(FSG.gamePhase == "board") {
 		// FSG.mousedownBoard(x,y);
 	}

@@ -1,27 +1,5 @@
 FSG.drawWin = function() {
-	var ctx = FSG.ctx;
-	ctx.save();
-
-	var bgBox = FSG.winButtons;
-
 	FSG.drawButtons(FSG.winButton);
-	// FSG.drawButtons(FSG.winButton.childButtons.next);
-};
-
-FSG.sanitizeButton = function(button,defaultButton) {
-	if(typeof button !== "object"){button = {};}
-
-	if(typeof defaultButton !== "object") {
-		defaultButton = FSG.defaultButton;
-	}
-
-	for(var key in defaultButton){
-		if(defaultButton.hasOwnProperty(key) && button[key] == null && key !== "childButtons") {
-			button[key] = defaultButton[key];
-		}
-	}
-
-	return button;
 };
 
 FSG.drawButtons = function(button,parent) {

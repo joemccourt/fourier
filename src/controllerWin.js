@@ -14,13 +14,18 @@ FSG.winButton = {
 	"childButtons": {
 		"nextLevel": {
 			"action": "nextLevel",
-			"box": {x: 0.1, y: 0.1, w: 0.8, h:0.3},
+			"box": {x: 0.1, y: 0.1, w: 0.8, h:0.2},
 			"text": "Next Level"
 		},
 		"keepPlaying": {
 			"action": "keepPlaying",
-			"box": {x: 0.1, y: 0.6, w: 0.8, h:0.3},
+			"box": {x: 0.1, y: 0.4, w: 0.8, h:0.2},
 			"text": "I can do better!"
+		},
+		"exitGame": {
+			"action": "exitGame",
+			"box": {x: 0.1, y: 0.7, w: 0.8, h:0.2},
+			"text": "Select Level"
 		}
 	}
 };
@@ -82,6 +87,8 @@ FSG.mousedownWin = function(x,y) {
 		FSG.nextLevel();
 	}else if(action === "keepPlaying") {
 		FSG.keepPlaying();
+	}else if(action === "exitGame") {
+		FSG.exitGame();
 	}
 };
 
