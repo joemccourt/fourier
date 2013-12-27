@@ -1,4 +1,4 @@
-FSG.mousedownMenu = function(x,y) {
+FSG.mousedownControls = function(x,y) {
 	var n = FSG.maxUserWaveID;
 	var nCols = 5;
 	var nRows = 3;
@@ -52,7 +52,7 @@ FSG.mousedownPlay = function(x,y) {
 		FSG.mouseDownArea = "menu";
 		var xPrime = (x - box.x) / box.w;
 		var yPrime = (y - box.y) / box.h;
-		FSG.mousedownMenu(xPrime,yPrime);		
+		FSG.mousedownControls(xPrime,yPrime);		
 	}
 };
 

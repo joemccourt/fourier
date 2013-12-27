@@ -65,6 +65,12 @@ FSG.setLevel = function() {
 	FSG.thresholdScore = lvl.thresholdScore;
 };
 
+FSG.restartLevel = function() {
+	FSG.maxUserWaveID = 0;
+	FSG.userWaves = {};
+	FSG.dirtyCanvas = true;
+};
+
 FSG.startNewLevel = function() {
 	FSG.maxUserWaveID = 0;
 	FSG.userWaves = {};

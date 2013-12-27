@@ -1,5 +1,15 @@
 "use strict";
 var FSG = {};
+
+FSG.defaultButton = {
+	"box": {x:0, y:0, w:1, h:1},
+	"text": "",
+	"fillStyle": "white",
+	"strokeStyle": "black",
+	"textStyle": "black",
+	"action": "nothing"
+};
+
 FSG.canvasID = "#canvas";
 FSG.dirtyCanvas = true;
 FSG.lastFrameTime = 0;
@@ -68,10 +78,12 @@ FSG.gameLoop = function(time) {
 
 		FSG.drawClear();
 		FSG.drawGame();
-		FSG.drawMenu();
+		FSG.drawControls();
 
 		if(FSG.gamePhase == "win") {
 			FSG.drawWin();
+		}else if(FSG.gamePhase == "menu") {
+			FSG.drawMenu();
 		}
 	}
 
@@ -120,6 +132,63 @@ FSG.checkScore = function() {
 	FSG.saveGameState();
 };
 
+FSG.changeView = function(phase) {
+	FSG.gamePhase = phase;
+	FSG.dirtyCanvas = true;
+};
+
+FSG.keydownPlay = function(key) {
+	if(key == 27) {
+		FSG.changeView("menu");
+	}
+};
+
+FSG.sanitizeButton = function(button,defaultButton) {
+	if(typeof button !== "object"){button = {};}
+
+	if(typeof defaultButton !== "object") {
+		defaultButton = FSG.defaultButton;
+	}
+
+	for(var key in defaultButton){
+		if(defaultButton.hasOwnProperty(key) && button[key] == null && key !== "childButtons") {
+			button[key] = defaultButton[key];
+		}
+	}
+
+	return button;
+};
+
+FSG.getMouseDownAction = function(button, x, y, parentButton) {
+	var action = "";
+
+	parentButton = FSG.sanitizeButton(parentButton);
+	FSG.sanitizeButton(button,parentButton);
+
+	var box = FSG.getSubBox(parentButton.box,button.box);
+
+	var x1 = box.x;
+	var y1 = box.y;
+
+	var x2 = x1+box.w;
+	var y2 = y1+box.h;
+	var childAction = "";
+
+	if(x >= x1 && x <= x2 && y >= y1 && y <= y2) {
+		action = button.action;
+		for(var childButtonKey in button.childButtons) {
+			if(button.childButtons.hasOwnProperty(childButtonKey)) {
+				childAction = FSG.getMouseDownAction(button.childButtons[childButtonKey],x,y,button);
+				if(typeof childAction === "string" && childAction !== "") {
+					action = childAction;
+				}
+			}
+		}
+	}
+
+	return action;
+};
+
 FSG.mousemove = function(x,y) {
 	if(FSG.gamePhase == "play" || FSG.gamePhase == "won") {
 		FSG.mousemovePlay(x,y);
@@ -140,7 +209,7 @@ FSG.mousedown = function(x,y){
 	}else if(FSG.gamePhase == "win") {
 		FSG.mousedownWin(x,y);
 	}else if(FSG.gamePhase == "menu") {
-		//FSG.mousedownMenu(x,y);
+		FSG.mousedownMenu(x,y);
 	}else if(FSG.gamePhase == "board") {
 		// FSG.mousedownBoard(x,y);
 	}
@@ -152,6 +221,17 @@ FSG.mouseup = function(x,y) {
 
 	FSG.mousePos = {'x':x,'y':y};
 	FSG.mouseState = "up";
+};
+
+
+FSG.keydown = function(e) {
+	if(FSG.gamePhase == "play" || FSG.gamePhase == "won") {
+		FSG.keydownPlay(e.which);
+	}else if(FSG.gamePhase == "win") {
+		FSG.keydownWin(e.which);
+	}else if(FSG.gamePhase == "menu") {
+		FSG.keydownMenu(e.which);
+	}
 };
 
 FSG.resizeToFit = function() {
@@ -233,6 +313,10 @@ FSG.initEvents = function(){
 		var h = FSG.canvas.height;
 
 		FSG.mouseup(x/w,y/h);
+	});
+
+	$(document).keydown(function (e) {
+		FSG.keydown(e);
 	});
 };
 
