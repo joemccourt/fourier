@@ -11,7 +11,7 @@ FSG.menuButton = {
 		"restartLevel": {
 			"action": "restartLevel",
 			"box": {x: 0.1, y: 0.6, w: 0.8, h:0.2},
-			"text": "Restart"
+			"text": "Restart Level"
 		}
 	}
 };

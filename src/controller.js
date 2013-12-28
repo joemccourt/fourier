@@ -19,6 +19,8 @@ FSG.mouseState = "up";
 FSG.level = 0;
 FSG.levelWon = false;
 
+FSG.renderBox = [0,0,0,0];
+
 FSG.bestScores = {};
 FSG.userWaves = {};
 
@@ -77,13 +79,17 @@ FSG.gameLoop = function(time) {
 		FSG.dirtyCanvas = false;
 
 		FSG.drawClear();
-		FSG.drawGame();
-		FSG.drawControls();
+		if(FSG.gamePhase == "board") {
+			FSG.drawBoardGame();
+		}else{
+			FSG.drawGame();
+			FSG.drawControls();
 
-		if(FSG.gamePhase == "win") {
-			FSG.drawWin();
-		}else if(FSG.gamePhase == "menu") {
-			FSG.drawMenu();
+			if(FSG.gamePhase == "win") {
+				FSG.drawWin();
+			}else if(FSG.gamePhase == "menu") {
+				FSG.drawMenu();
+			}
 		}
 	}
 
@@ -101,14 +107,21 @@ FSG.nextLevel = function() {
 	FSG.startNewLevel();
 };
 
+FSG.selectLevel = function(lvl) {
+	FSG.level = lvl;
+	FSG.gamePhase = "play";
+
+	FSG.score = 0;
+	FSG.startNewLevel();
+};
+
 FSG.keepPlaying = function() {
 	FSG.gamePhase = "won";
 	FSG.dirtyCanvas = true;
 };
 
 FSG.exitGame = function() {
-	FSG.gamePhase = "board";
-	FSG.dirtyCanvas = true;
+	FSG.changeView("board");
 };
 
 FSG.winLevel = function() {
@@ -132,9 +145,21 @@ FSG.checkScore = function() {
 	FSG.saveGameState();
 };
 
+FSG.canPlayLevel = function(i) {
+
+	//TODO: implement this
+	return true;
+}
+
 FSG.changeView = function(phase) {
 	FSG.gamePhase = phase;
 	FSG.dirtyCanvas = true;
+
+	if(phase == "board") {
+		FSG.setBoardRenderBox();
+	}else{
+
+	}
 };
 
 FSG.keydownPlay = function(key) {
@@ -195,7 +220,7 @@ FSG.mousemove = function(x,y) {
 	}else if(FSG.gamePhase == "win") {
 		FSG.mousemoveWin(x,y);
 	}else if(FSG.gamePhase == "board") {
-		// FSG.mousemoveBoard(x,y);
+		FSG.mousemoveBoard(x,y);
 	}
 };
 
@@ -211,7 +236,7 @@ FSG.mousedown = function(x,y){
 	}else if(FSG.gamePhase == "menu") {
 		FSG.mousedownMenu(x,y);
 	}else if(FSG.gamePhase == "board") {
-		// FSG.mousedownBoard(x,y);
+		FSG.mousedownBoard(x,y);
 	}
 };
 
@@ -221,6 +246,10 @@ FSG.mouseup = function(x,y) {
 
 	FSG.mousePos = {'x':x,'y':y};
 	FSG.mouseState = "up";
+
+	if(FSG.gamePhase == "board") {
+		FSG.mouseupBoard(x,y);
+	}
 };
 
 
@@ -240,6 +269,11 @@ FSG.resizeToFit = function() {
 
 	FSG.canvas.width  = w;
 	FSG.canvas.height = h;
+
+	if(FSG.gamePhase == "board"){
+		FSG.setBoardRenderBox();
+		FSG.dirtyBoardGameBackground = true;
+	}
 
 	FSG.dirtyCanvas = true;
 };
@@ -275,6 +309,9 @@ FSG.saveGameState = function() {
 
 	localStorage["FSG.gameState"] = JSON.stringify(gameState);
 };
+
+FSG.getRenderBoxWidth  = function(){return FSG.renderBox[2] - FSG.renderBox[0];};
+FSG.getRenderBoxHeight = function(){return FSG.renderBox[3] - FSG.renderBox[1];};
 
 // *** Event binding *** //
 FSG.initEvents = function(){
