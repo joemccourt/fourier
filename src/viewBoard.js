@@ -121,7 +121,12 @@ FSG.drawBoardLevels = function(){
 	
 		for(var k = 0; k <= 1; k++){
 			var color;
-			color = {r:0x44,g:0xEE,b:0x88};
+
+			if(FSG.canPlayLevel(i)) {
+				color = {r:0x44,g:0xEE,b:0x88};
+			}else{
+				color = {r:0x88,g:0x88,b:0x88};
+			}
 			
 			if(k == 1){
 				color = {r:0,g:0,b:0};

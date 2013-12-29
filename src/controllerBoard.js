@@ -1,6 +1,6 @@
 "use strict";
 
-FSG.drawBoardGameBox = [-0.1,-1.5,1.1,1.1];
+FSG.drawBoardGameBox = [-0.1,0,3,1];
 FSG.drawBoardGameTransform = [1,0,0,0,
 							  0,1,0,0,
 							  0,0,1,0];
@@ -56,6 +56,7 @@ FSG.mouseupBoard = function(x,y){
 	FSG.saveGameState();
 };
 
+//TODO: fix circle hitbox
 FSG.mousedownBoard = function(x,y){
 	FSG.mouseDownLast = {x:x,y:y};
 	FSG.drawBoardGameTransform = FSG.drawBoardGameTransformTmp;
@@ -86,7 +87,7 @@ FSG.mousedownBoard = function(x,y){
 };
 
 FSG.mousemoveBoard = function(x,y){
-	if(FSG.mouseState == "down"){
+	if(FSG.mouseState == "down" && typeof FSG.mouseDownLast === "object") {
 		FSG.drawBoardGameTransform = FSG.transfromTranslate(FSG.drawBoardGameTransform, x - FSG.mouseDownLast.x, y - FSG.mouseDownLast.y);
 		FSG.dirtyCanvas = true;	
 		FSG.mouseDownLast = {x:x,y:y};

@@ -17,6 +17,7 @@ FSG.mousePos = {'x':0.5,'y':0.5};
 FSG.mouseState = "up";
 
 FSG.level = 0;
+FSG.maxLevel = 0;
 FSG.levelWon = false;
 
 FSG.renderBox = [0,0,0,0];
@@ -127,6 +128,9 @@ FSG.exitGame = function() {
 FSG.winLevel = function() {
 	if(!FSG.levelWon && FSG.gamePhase == "play") {
 		FSG.gamePhase = "win";
+		if(FSG.maxLevel == FSG.level) {
+			FSG.maxLevel++;
+		}
 	}
 };
 
@@ -146,9 +150,10 @@ FSG.checkScore = function() {
 };
 
 FSG.canPlayLevel = function(i) {
-
-	//TODO: implement this
-	return true;
+	if(i <= FSG.maxLevel) {
+		return true;
+	}
+	return false;
 }
 
 FSG.changeView = function(phase) {
@@ -288,6 +293,7 @@ FSG.loadGameState = function(){
 		FSG.newUser = false;
 		FSG.userWaves = gameState.userWaves;
 		FSG.level = gameState.level;
+		FSG.maxLevel = gameState.maxLevel;
 		FSG.userWaveSelected = gameState.userWaveSelected;
 		FSG.bestScores = gameState.bestScores;
 		FSG.maxUserWaveID = gameState.maxUserWaveID;
@@ -301,6 +307,7 @@ FSG.saveGameState = function() {
 	var gameState = {
 		'userWaves': FSG.userWaves,
 		'level': FSG.level,
+		'maxLevel': FSG.maxLevel,
 		'userWaveSelected': FSG.userWaveSelected,
 		'bestScores': FSG.bestScores,
 		'maxUserWaveID': FSG.maxUserWaveID,
