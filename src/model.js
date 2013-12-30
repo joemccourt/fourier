@@ -51,7 +51,7 @@ FSG.addWave = function(amp,freq,color) {
 	if(typeof amp !== "number"){amp = 0.4;}
 	if(typeof freq !== "number"){freq = 2;}
 	if(typeof color !== "object"){
-		color = 'rgb('+(256*Math.random()|0)+','+(256*Math.random()|0)+','+(256*Math.random()|0)+')';
+		color = 'rgba('+(256*Math.random()|0)+','+(256*Math.random()|0)+','+(256*Math.random()|0)+',0.25)';
 	}
 
 	var waveStr = 'wave-'+(FSG.maxUserWaveID+1);

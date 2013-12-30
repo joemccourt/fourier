@@ -108,6 +108,7 @@ FSG.drawFunctions = function() {
 			n = Math.round(boxWidth/4);
 			var points = FSG.getWavePoints(0,1,n,waveFun);
 			ctx.strokeStyle = wave.color;
+			ctx.fillStyle = wave.color;
 			ctx.beginPath();
 			for(var i = 0; i < n; i++) {
 
@@ -117,7 +118,11 @@ FSG.drawFunctions = function() {
 
 				ctx.lineTo(drawX, drawY);
 			}
+			ctx.lineTo(x1+boxWidth,y1+0.5*boxHeight);
+			ctx.lineTo(x1,y1+0.5*boxHeight);
+			ctx.closePath();
 			ctx.stroke();
+			ctx.fill();
 		}
 	}
 

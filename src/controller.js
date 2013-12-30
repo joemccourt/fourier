@@ -265,6 +265,8 @@ FSG.keydown = function(e) {
 		FSG.keydownWin(e.which);
 	}else if(FSG.gamePhase == "menu") {
 		FSG.keydownMenu(e.which);
+	}else if(FSG.gamePhase == "board") {
+		FSG.keydownBoard(e.which)
 	}
 };
 

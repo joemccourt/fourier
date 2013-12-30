@@ -118,8 +118,10 @@ FSG.drawBoardLevels = function(){
 
 		var x = x1+coords[i][0]*w;
 		var y = y1+coords[i][1]*h;
-	
-		for(var k = 0; k <= 1; k++){
+		
+		var bestScore = FSG.bestScores[i];
+
+		for(var k = 0; k <= 2; k++){
 			var color;
 
 			if(FSG.canPlayLevel(i)) {
@@ -128,9 +130,10 @@ FSG.drawBoardLevels = function(){
 				color = {r:0x88,g:0x88,b:0x88};
 			}
 			
-			if(k == 1){
+			if(k == 0 || k == 2){
 				color = {r:0,g:0,b:0};
 			}
+
 			// create radial gradient
 			var grd = ctx.createRadialGradient(x-r*0.1,y-r*0.3,r*0.1,x,y,r);
 
@@ -158,12 +161,12 @@ FSG.drawBoardLevels = function(){
 
 			ctx.fillStyle = grd;
 
-			if(k == 0){
+			if(k == 1) {
 				ctx.beginPath();
 				ctx.arc(x, y, r, 0, 2 * Math.PI, false);
 				ctx.closePath();
 				ctx.fill();
-			}else{	
+			}else if(k == 2) {
 				ctx.font = "" + (r) + "px Lucida Console";
 				
 				ctx.lineWidth = 1;
@@ -172,6 +175,15 @@ FSG.drawBoardLevels = function(){
 				ctx.textBaseline = 'middle';
 				ctx.fillText(""+i,x,y);
 				ctx.strokeText(""+i,x,y);
+			}else if(k == 0 && typeof bestScore === "number") {
+				ctx.font = "" + (0.8*r) + "px Lucida Console";
+				
+				ctx.lineWidth = 1;
+				ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+				ctx.textAlign = 'center';
+				ctx.textBaseline = 'middle';
+				ctx.fillText(bestScore.toPrecision(bestScore > 10 ? 2 : 1),x+r,y-r);
+				// ctx.strokeText(""+i,x,y);	
 			}
 		}
 	}
