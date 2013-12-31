@@ -299,6 +299,7 @@ FSG.loadGameState = function(){
 		FSG.userWaveSelected = gameState.userWaveSelected;
 		FSG.bestScores = gameState.bestScores;
 		FSG.maxUserWaveID = gameState.maxUserWaveID;
+		FSG.userWaveKeysInOrder = gameState.userWaveKeysInOrder;
 		FSG.gamePhase = gameState.gamePhase;
 	}
 };
@@ -313,6 +314,7 @@ FSG.saveGameState = function() {
 		'userWaveSelected': FSG.userWaveSelected,
 		'bestScores': FSG.bestScores,
 		'maxUserWaveID': FSG.maxUserWaveID,
+		'userWaveKeysInOrder': FSG.userWaveKeysInOrder,
 		'gamePhase': FSG.gamePhase
 	};
 

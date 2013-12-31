@@ -1,3 +1,6 @@
+FSG.userWaveKeysInOrder = []; // Should have just used array, but oh well.
+FSG.maxWaveZIndex = 0;
+
 FSG.goalWave = function(x){return Math.sin(x*2*Math.PI);}
 
 FSG.getSubBox = function(boxParent,boxChild) {
@@ -47,25 +50,48 @@ FSG.getTotalUserFun = function() {
 	}
 };
 
+FSG.getNewWaveColor = function() {
+	var set = FSG.colorSets['waves'];
+	return FSG.colorToStr(set[FSG.maxUserWaveID%set.length],0.4);
+};
+
 FSG.addWave = function(amp,freq,color) {
 	if(typeof amp !== "number"){amp = 0.4;}
 	if(typeof freq !== "number"){freq = 2;}
 	if(typeof color !== "object"){
-		color = 'rgba('+(256*Math.random()|0)+','+(256*Math.random()|0)+','+(256*Math.random()|0)+',0.25)';
+		color = FSG.getNewWaveColor();
+		//color = 'rgba('+(256*Math.random()|0)+','+(256*Math.random()|0)+','+(256*Math.random()|0)+',0.25)';
 	}
 
 	var waveStr = 'wave-'+(FSG.maxUserWaveID+1);
 	FSG.userWaves[waveStr] = {
 		'color': color,
 		'amp': amp,
-		'freq': freq
+		'freq': freq,
+		'z-index': FSG.maxWaveZIndex
 	};
+
+	FSG.maxWaveZIndex++;
+	FSG.userWaveKeysInOrder.push(waveStr);
 
 	FSG.userWaveSelected = waveStr;
 	FSG.maxUserWaveID++;
 	FSG.dirtyCanvas = true;
 
 	FSG.saveGameState();
+};
+
+FSG.reorderUserWaves = function() {
+	FSG.userWaveKeysInOrder.sort(function(a, b) {
+		return FSG.userWaves[a]['z-index'] - FSG.userWaves[b]['z-index'];
+	});
+};
+
+FSG.selectWave = function(number) {
+	FSG.userWaveSelected = 'wave-' + number;
+	FSG.userWaves[FSG.userWaveSelected]['z-index'] = FSG.maxWaveZIndex;
+	FSG.reorderUserWaves();
+	FSG.maxWaveZIndex++;
 };
 
 FSG.getRMSFromGoal = function() {

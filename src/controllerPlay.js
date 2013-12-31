@@ -6,7 +6,7 @@ FSG.mousedownControls = function(x,y) {
 	var col = Math.floor(x*nCols);
 	var number = nCols*row+col+1;
 	if(number <= n) {
-		FSG.userWaveSelected = 'wave-' + number;
+		FSG.selectWave(number);
 	}else if(number-1 == n) {
 		FSG.addWave(Math.random(),3);
 	}

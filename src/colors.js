@@ -6,17 +6,7 @@ FSG.colors = {
 	'cyan'   : {r:  0,g:255,b:255},
 	'purple' : {r:255,g:  0,b:255},
 	'white'  : {r:255,g:255,b:255},
-	'black'  : {r:  0,g:  0,b:  0},
-	'particleBlue'  : {r: 25,g:73,b:204},
-	'particleDarkBlue': {r: 35,g:46,b:125},
-	'particleRed'   : {r:200,g: 25,b: 54},
-	'particleWhite' : {r:211,g:231,b:243},
-	'particleOffWhite' : {r:226,g:246,b:255},
-	'winColor'      : {r:100,g:200,b:100},
-	'loseColor'      : {r:200,g:40,b:40},
-	'starBronze': {r:150,g:90,b:56},
-	'starSilver': {r:204,g:194,b:194},
-	'starGold': {r:217,g:164,b:65}
+	'black'  : {r:  0,g:  0,b:  0}
 };
 
 FSG.colorToStr = function(color,alpha){
@@ -39,9 +29,6 @@ FSG.colorToStr = function(color,alpha){
 FSG.negateColor = function(color){
 	return {r:255-color.r,g:255-color.g,b:255-color.b};
 };
-
-FSG.starColors = [FSG.colors['starBronze'],FSG.colors['starSilver'],FSG.colors['starGold']];
-FSG.starColorStr = [FSG.colorToStr(FSG.colors['starBronze']),FSG.colorToStr(FSG.colors['starSilver']),FSG.colorToStr(FSG.colors['starGold'])];
 
 FSG.colorSets = {
 	'pastels' : 
@@ -171,5 +158,17 @@ FSG.colorSets = {
 		{r:165,g:241,b:239},
 		{r:220,g:255,b:234},
 		{r:254,g:255,b:230}
+	],
+
+	'waves' :
+	[
+		{r:170,g:255,b:  0},
+		{r:255,g:170,b:  0},
+		{r:255,g:  0,b:170},
+		{r:  0,g:170,b:255},
+		{r:170,g:  0,b:255},
+		{r:  9,g:208,b:152},
+		{r:255,g:105,b: 65},
+		{r:240,g: 53,b:106}
 	]
 };

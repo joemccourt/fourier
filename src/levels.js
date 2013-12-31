@@ -68,6 +68,7 @@ FSG.setLevel = function() {
 FSG.startNewLevel = function() {
 	FSG.maxUserWaveID = 0;
 	FSG.userWaves = {};
+	FSG.userWaveKeysInOrder = [];
 	FSG.addWave(0.5,3);
 	FSG.setLevel();
 

@@ -100,32 +100,38 @@ FSG.drawFunctions = function() {
 	ctx.stroke();
 
 	ctx.lineWidth = 1;
-	for(var waveKey in FSG.userWaves){
-		if(FSG.userWaves.hasOwnProperty(waveKey)){
-			var wave = FSG.userWaves[waveKey];
-			var waveFun = FSG.getWaveFun(waveKey);
+	var keys = FSG.userWaveKeysInOrder;
+	var nKeys = keys.length;
+	for(var k = 0; k < nKeys; k++){
+		var waveKey = keys[k];
+		// console.log(waveKey);
+		var wave = FSG.userWaves[waveKey];
+		var waveFun = FSG.getWaveFun(waveKey);
 
-			n = Math.round(boxWidth/4);
-			var points = FSG.getWavePoints(0,1,n,waveFun);
-			ctx.strokeStyle = wave.color;
-			ctx.fillStyle = wave.color;
-			ctx.beginPath();
-			for(var i = 0; i < n; i++) {
+		n = Math.round(boxWidth/4);
+		var points = FSG.getWavePoints(0,1,n,waveFun);
+		ctx.strokeStyle = wave.color;
+		ctx.fillStyle = wave.color;
+		ctx.beginPath();
+		for(var i = 0; i < n; i++) {
 
-				var drawX = x1+(i/n*1 + 0)*boxWidth;
-				var drawY = y1+((-0.5*points[i]/maxY+0.5)*1 + 0)*boxHeight;
-				drawY = drawY < y1 ? y1 : drawY > y2 ? y2 : drawY;
+			var drawX = x1+(i/n*1 + 0)*boxWidth;
+			var drawY = y1+((-0.5*points[i]/maxY+0.5)*1 + 0)*boxHeight;
+			drawY = drawY < y1 ? y1 : drawY > y2 ? y2 : drawY;
 
-				ctx.lineTo(drawX, drawY);
-			}
-			ctx.lineTo(x1+boxWidth,y1+0.5*boxHeight);
-			ctx.lineTo(x1,y1+0.5*boxHeight);
-			ctx.closePath();
-			ctx.stroke();
-			ctx.fill();
+			ctx.lineTo(drawX, drawY);
 		}
-	}
 
+		if(waveKey == FSG.userWaveSelected) {
+			ctx.strokeStyle = 'black';
+			ctx.stroke();
+		}
+
+		ctx.lineTo(x1+boxWidth,y1+0.5*boxHeight);
+		ctx.lineTo(x1,y1+0.5*boxHeight);
+		ctx.closePath();
+		ctx.fill();
+	}
 
 	ctx.strokeStyle = 'black';
 	var points = FSG.getWavePoints(0,1,n,FSG.getTotalUserFun());
