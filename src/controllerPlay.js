@@ -32,9 +32,45 @@ FSG.mousemovePlay = function(x,y) {
 	}
 };
 
+FSG.getWaveSelect = function(x,y) {
+	var w = FSG.canvas.width;
+	var h = FSG.canvas.height;
+
+	var box = FSG.functionBox;
+
+	var maxY = FSG.maxY;
+	var minY = FSG.minY;
+
+	var yValue = maxY*(1-2*(y-box.y)/box.h);
+
+	var keys = FSG.userWaveKeysInOrder;
+	var nKeys = keys.length;
+	for(var k = nKeys-1; k >= 0; k--) {
+		var waveKey = keys[k];
+		
+		var wave = FSG.userWaves[waveKey];
+		var waveFun = FSG.getWaveFun(waveKey);
+
+		var functionValue = FSG.getWavePoints(x,x,1,waveFun)[0];
+		// console.log(yValue,waveKey,functionValue)
+
+		if(yValue < functionValue && yValue > 0 || yValue > functionValue && yValue < 0) {
+			return waveKey;
+		}
+	}
+	return "";
+};
+
 FSG.mousedownPlay = function(x,y) {
 	var box = FSG.functionBox;
 	FSG.mouseDownArea = "";
+
+	var newSelectedWave = FSG.getWaveSelect(x,y);
+	if(newSelectedWave !== "") {
+		console.log(newSelectedWave);
+		FSG.selectWave(newSelectedWave);
+	}
+
 	if(x >= box.x && x <= box.x+box.w && y >= box.y && y <= box.y+box.h) {
 		FSG.mouseDownArea = "function";
 		var xPrime = (x - box.x) / box.w;

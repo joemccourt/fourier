@@ -87,11 +87,16 @@ FSG.reorderUserWaves = function() {
 	});
 };
 
-FSG.selectWave = function(number) {
-	FSG.userWaveSelected = 'wave-' + number;
+FSG.selectWave = function(wave) {
+	if(typeof wave === "string") {
+		FSG.userWaveSelected = wave;
+	}else if(typeof wave === "number") {
+		FSG.userWaveSelected = 'wave-' + wave;
+	}
 	FSG.userWaves[FSG.userWaveSelected]['z-index'] = FSG.maxWaveZIndex;
 	FSG.reorderUserWaves();
 	FSG.maxWaveZIndex++;
+	FSG.dirtyCanvas = true;
 };
 
 FSG.getRMSFromGoal = function() {
