@@ -134,3 +134,24 @@ FSG.getMatchScore = function() {
 
 	return score;
 };
+
+FSG.setTimbre = function(){
+
+	for(var waveKey in FSG.userWaves) {
+		if(FSG.userWaves.hasOwnProperty(waveKey)) {
+			var wave = FSG.userWaves[waveKey];
+			// console.log(wave.freq);
+			var waveT = T("sin", {freq:261.6256*wave.freq, mul:0.5*Math.abs(wave.amp)});
+			FSG.Timbre.append(waveT);
+			// .on("ended", function() {
+			//   this.pause();
+			// }).bang().play();
+			// return; //TODO add up waves
+		}
+	}
+
+	// T.play();
+// T("+", T("sin", {freq:261.6256, mul:0.5}),
+//        T("sin", {freq:659.25, mul:0}),
+//        T("sin", {freq:783.99, mul:0})).play();
+}

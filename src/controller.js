@@ -25,6 +25,9 @@ FSG.renderBox = [0,0,0,0];
 FSG.bestScores = {};
 FSG.userWaves = {};
 
+FSG.Timbre = T("sin", {freq:261.6256, mul:0.1});
+FSG.Timbre.play(); //TODO: better way of doing this :/
+
 FSG.maxUserWaveID = 0;
 
 FSG.gameBox = {x:0,y:0,w:1,h:1};
@@ -54,6 +57,17 @@ window.onload = FSG.main;
 FSG.startSession = function() {
 	FSG.canvas = $(FSG.canvasID)[0];
 	FSG.ctx = FSG.canvas.getContext("2d");
+
+// var sine1 = T("sin", {freq:440, mul:0.5});
+// var sine2 = T("sin", {freq:660, mul:0.5});
+
+// T("perc", {r:500}, sine1, sine2).on("ended", function() {
+//   this.pause();
+// }).bang().play();
+
+// T("+", T("sin", {freq:261.6256, mul:0.5}),
+//        T("sin", {freq:659.25, mul:0}),
+//        T("sin", {freq:783.99, mul:0})).play();
 
 	//FSG.setLevelRenderBox();
 	FSG.newUser = true;
@@ -85,6 +99,11 @@ FSG.gameLoop = function(time) {
 		}else{
 			FSG.drawGame();
 			FSG.drawControls();
+
+
+			//TODO: find way of doing this realtime without clicks
+			FSG.Timbre.removeAll();
+			FSG.setTimbre();
 
 			if(FSG.gamePhase == "win") {
 				FSG.drawWin();
