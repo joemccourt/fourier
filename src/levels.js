@@ -22,6 +22,10 @@ FSG.levelConfig = {
 	'5': {
 		goalWave: 'gaussian',
 		thresholdScore: 50
+	},
+	'6': {
+		goalWave: 'clarinet',
+		thresholdScore: 50
 	}
 };
 
@@ -45,6 +49,25 @@ FSG.getGoalWave = function(goalWave) {
 			break;
 		case 'gaussian':
 			wave = function(x){return 1-Math.exp(-x*x/(2/36));}
+			break;
+		case 'clarinet':
+			// on eb 156Hz from http://hyperphysics.phy-astr.gsu.edu/hbase/music/clarw.html
+			wave = function(x) {
+				return 	(Math.sin(x*2*Math.PI) + 
+						0.04*Math.sin(2*x*2*Math.PI) + 
+						0.99*Math.sin(3*x*2*Math.PI) + 
+						0.12*Math.sin(4*x*2*Math.PI) + 
+						0.53*Math.sin(5*x*2*Math.PI) + 
+						0.11*Math.sin(6*x*2*Math.PI) + 
+						0.26*Math.sin(7*x*2*Math.PI) + 
+						0.05*Math.sin(8*x*2*Math.PI) + 
+						0.24*Math.sin(9*x*2*Math.PI) + 
+						0.07*Math.sin(10*x*2*Math.PI) + 
+						0.02*Math.sin(11*x*2*Math.PI) + 
+						0.03*Math.sin(12*x*2*Math.PI) + 
+						0.02*Math.sin(13*x*2*Math.PI) + 
+						0.03*Math.sin(14*x*2*Math.PI));
+			}
 			break;
 		default:
 			wave = function(x){return Math.sin(x*2*Math.PI);}

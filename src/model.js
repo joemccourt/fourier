@@ -135,18 +135,27 @@ FSG.getMatchScore = function() {
 	return score;
 };
 
+
+//TODO: remove waves that don't exist anymore
 FSG.setTimbre = function(){
 
 	for(var waveKey in FSG.userWaves) {
 		if(FSG.userWaves.hasOwnProperty(waveKey)) {
 			var wave = FSG.userWaves[waveKey];
 			// console.log(wave.freq);
-			var waveT = T("sin", {freq:261.6256*wave.freq, mul:0.5*Math.abs(wave.amp)});
-			FSG.Timbre.append(waveT);
-			// .on("ended", function() {
-			//   this.pause();
-			// }).bang().play();
-			// return; //TODO add up waves
+			var newFreq = 261.6256*wave.freq;
+			var newAmp = 0.5*Math.abs(wave.amp);
+			if(typeof FSG.Timbre[waveKey] !== "object"){
+				var waveT = T("sin", {freq:T("param", {value: newFreq}), mul:newAmp});
+				FSG.Timbre[waveKey] = waveT;
+				FSG.Timbre.T.append(waveT);
+			}else{
+				if(newFreq != FSG.Timbre[waveKey].freq.value || newAmp != FSG.Timbre[waveKey].mul) {
+					console.log(newFreq,FSG.Timbre[waveKey].freq.value,newAmp,FSG.Timbre[waveKey].mul)
+					FSG.Timbre[waveKey].freq.linTo(newFreq, 250);
+					FSG.Timbre[waveKey].mul = newAmp;
+				}
+			}
 		}
 	}
 

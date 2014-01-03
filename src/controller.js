@@ -1,6 +1,8 @@
 "use strict";
 var FSG = {};
 
+FSG.unlockAllLevels = true;
+
 FSG.defaultButton = {
 	"box": {x:0, y:0, w:1, h:1},
 	"text": "",
@@ -25,8 +27,11 @@ FSG.renderBox = [0,0,0,0];
 FSG.bestScores = {};
 FSG.userWaves = {};
 
-FSG.Timbre = T("sin", {freq:261.6256, mul:0.1});
-FSG.Timbre.play(); //TODO: better way of doing this :/
+FSG.Timbre = {
+	'T': T("+",{mul:0.1})
+};
+
+FSG.Timbre.T.play(); //TODO: better way of doing this :/
 
 FSG.maxUserWaveID = 0;
 
@@ -102,7 +107,7 @@ FSG.gameLoop = function(time) {
 
 
 			//TODO: find way of doing this realtime without clicks
-			FSG.Timbre.removeAll();
+			// FSG.Timbre.removeAll();
 			FSG.setTimbre();
 
 			if(FSG.gamePhase == "win") {
@@ -169,6 +174,7 @@ FSG.checkScore = function() {
 };
 
 FSG.canPlayLevel = function(i) {
+	if(FSG.unlockAllLevels){return true;s}
 	if(i <= FSG.maxLevel) {
 		return true;
 	}
